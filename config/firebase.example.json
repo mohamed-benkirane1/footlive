@@ -1,0 +1,10 @@
+{
+  "_comment": "Copiez ce fichier vers js/firebase.config.js et remplissez vos valeurs",
+  "FIREBASE_CONFIG": {
+    "databaseURL": "https://YOUR_PROJECT-default-rtdb.firebaseio.com/",
+    "apiKey":      "YOUR_API_KEY",
+    "authDomain":  "YOUR_PROJECT.firebaseapp.com",
+    "projectId":   "YOUR_PROJECT"
+  },
+  "ADMIN_PIN": "8033"
+}

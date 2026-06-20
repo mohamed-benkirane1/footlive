@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FootLive – Streaming Football</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- hls.js pour les flux .m3u8 -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <!-- Firebase App + Database -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <!-- ============================================================
+       HEADER
+  ============================================================ -->
+  <header class="header">
+    <div class="header__brand">
+      <span class="header__logo">⚽</span>
+      <span class="header__title">Foot<span class="accent-green">Live</span></span>
+    </div>
+
+    <nav class="header__nav">
+      <a href="#" class="nav-link active" data-section="live">Live</a>
+      <a href="#" class="nav-link" data-section="scores">Scores</a>
+      <a href="#" class="nav-link" data-section="channels">Chaînes</a>
+    </nav>
+
+    <button class="btn-manage" id="btnManage">⚙ Manage</button>
+  </header>
+
+  <!-- ============================================================
+       CONTENU PRINCIPAL
+  ============================================================ -->
+  <main class="main-layout">
+
+    <!-- ── Colonne gauche : lecteur vidéo ── -->
+    <section class="player-section">
+
+      <!-- Infos du match en cours -->
+      <div class="match-banner" id="matchBanner">
+        <div class="match-banner__teams">
+          <span class="team" id="teamHome">–</span>
+          <div class="match-banner__score">
+            <span id="scoreHome">0</span>
+            <span class="separator">:</span>
+            <span id="scoreAway">0</span>
+          </div>
+          <span class="team" id="teamAway">–</span>
+        </div>
+        <span class="badge-live">LIVE</span>
+      </div>
+
+      <!-- Wrapper du lecteur -->
+      <div class="player-wrapper" id="playerWrapper">
+        <div class="player-placeholder" id="playerPlaceholder">
+          <span class="placeholder-icon">▶</span>
+          <p>Sélectionnez une chaîne pour démarrer le stream</p>
+        </div>
+        <!-- Lecteur HLS -->
+        <video id="videoPlayer" controls playsinline style="display:none;"></video>
+        <!-- Lecteur iframe (embed=) -->
+        <iframe id="iframePlayer"
+                allowfullscreen
+                allow="autoplay; encrypted-media"
+                style="display:none; width:100%; height:100%; border:none;">
+        </iframe>
+      </div>
+
+      <!-- Nom de la chaîne active -->
+      <div class="channel-info" id="channelInfo">
+        <span class="channel-info__name" id="activeChannelName">Aucune chaîne sélectionnée</span>
+        <span class="badge-live badge-live--sm" id="activeBadge" style="display:none;">LIVE</span>
+      </div>
+    </section>
+
+    <!-- ── Colonne droite : sidebar ── -->
+    <aside class="sidebar">
+
+      <!-- Onglets -->
+      <div class="sidebar__tabs">
+        <button class="tab-btn active" data-tab="channels">📺 Chaînes</button>
+        <button class="tab-btn" data-tab="scores">📊 Scores</button>
+      </div>
+
+      <!-- Onglet Chaînes -->
+      <div class="tab-content active" id="tab-channels">
+        <div class="search-bar">
+          <input type="text" id="channelSearch" placeholder="Rechercher une chaîne…" />
+        </div>
+        <ul class="channel-list" id="channelList">
+          <li class="channel-list__empty">Chargement des chaînes…</li>
+        </ul>
+      </div>
+
+      <!-- Onglet Scores -->
+      <div class="tab-content" id="tab-scores">
+        <div class="scores-header">
+          <span>Scores Live</span>
+          <button class="btn-refresh" id="btnRefreshScores" title="Actualiser">↻</button>
+        </div>
+
+        <!-- Premier League -->
+        <div class="league-section">
+          <div class="league-title">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</div>
+          <ul class="score-list" id="scoreListPL">
+            <li class="score-list__loading">Chargement…</li>
+          </ul>
+        </div>
+
+        <!-- Champions League -->
+        <div class="league-section">
+          <div class="league-title">⭐ Champions League</div>
+          <ul class="score-list" id="scoreListUCL">
+            <li class="score-list__loading">Chargement…</li>
+          </ul>
+        </div>
+
+        <p class="scores-refresh-info">Actualisation auto toutes les 60 s</p>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ============================================================
+       PANEL ADMIN (bottom-sheet)
+  ============================================================ -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Écran de PIN -->
+  <div class="pin-modal" id="pinModal">
+    <h2>🔐 Accès Admin</h2>
+    <p>Entrez le code PIN</p>
+    <div class="pin-inputs">
+      <input class="pin-digit" type="password" maxlength="1" inputmode="numeric" />
+      <input class="pin-digit" type="password" maxlength="1" inputmode="numeric" />
+      <input class="pin-digit" type="password" maxlength="1" inputmode="numeric" />
+      <input class="pin-digit" type="password" maxlength="1" inputmode="numeric" />
+    </div>
+    <p class="pin-error" id="pinError"></p>
+    <button class="btn-secondary" id="btnCancelPin">Annuler</button>
+  </div>
+
+  <!-- Panel admin -->
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-panel__header">
+      <h2>⚙ Administration</h2>
+      <button class="btn-close" id="btnCloseAdmin">✕</button>
+    </div>
+
+    <!-- Onglets admin -->
+    <div class="admin-tabs">
+      <button class="admin-tab-btn active" data-admin-tab="manage">📋 Channels</button>
+      <button class="admin-tab-btn" data-admin-tab="add">➕ Add New</button>
+      <button class="admin-tab-btn" data-admin-tab="settings">🔧 Settings</button>
+    </div>
+
+    <!-- Onglet Manage Channels -->
+    <div class="admin-tab-content active" id="admin-tab-manage">
+      <ul class="admin-channel-list" id="adminChannelList">
+        <li>Chargement…</li>
+      </ul>
+    </div>
+
+    <!-- Onglet Add New -->
+    <div class="admin-tab-content" id="admin-tab-add">
+      <form class="add-channel-form" id="addChannelForm">
+        <label>Nom de la chaîne
+          <input type="text" id="newName" placeholder="ex: beIN Sports 1" required />
+        </label>
+        <label>URL du logo
+          <input type="url" id="newLogo" placeholder="https://…/logo.png" />
+        </label>
+        <label>Catégorie
+          <select id="newCategory">
+            <option value="general">Général</option>
+            <option value="sports">Sports</option>
+            <option value="football">Football</option>
+            <option value="premium">Premium</option>
+          </select>
+        </label>
+        <label>URL du stream
+          <input type="text" id="newUrl"
+                 placeholder="mora=https://…/stream.m3u8  ou  embed=https://…" required />
+          <small>Préfixe <code>mora=</code> pour HLS, <code>embed=</code> pour iframe</small>
+        </label>
+        <button type="submit" class="btn-primary">Ajouter la chaîne</button>
+        <p class="form-msg" id="addFormMsg"></p>
+      </form>
+    </div>
+
+    <!-- Onglet Settings -->
+    <div class="admin-tab-content" id="admin-tab-settings">
+      <form class="settings-form" id="changePinForm">
+        <h3>Changer le PIN</h3>
+        <label>PIN actuel
+          <input type="password" id="currentPin" maxlength="4" inputmode="numeric" />
+        </label>
+        <label>Nouveau PIN (4 chiffres)
+          <input type="password" id="newPin" maxlength="4" inputmode="numeric" />
+        </label>
+        <label>Confirmer le nouveau PIN
+          <input type="password" id="confirmPin" maxlength="4" inputmode="numeric" />
+        </label>
+        <button type="submit" class="btn-primary">Enregistrer</button>
+        <p class="form-msg" id="pinFormMsg"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SCRIPTS (ordre important : config → firebase → app)
+  ============================================================ -->
+  <script src="js/firebase.config.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/scores.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
