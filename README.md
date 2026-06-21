@@ -1,82 +1,76 @@
 # FootLive ⚽
+Site de streaming football – Coupe du Monde 2026
 
-Site de streaming football en direct — HTML/CSS/JS vanilla, Firebase Realtime Database, hls.js, ESPN API.
-
-## Démarrage rapide
+## Setup
 
 ### 1. Cloner le repo
-
 ```bash
 git clone https://github.com/TON-USER/footlive.git
 cd footlive
 ```
 
 ### 2. Configurer Firebase
-
 ```bash
-# Copiez le template
 cp config/firebase.example.json js/firebase.config.js
 ```
 
-Éditez `js/firebase.config.js` et remplacez les valeurs :
-
+Éditez `js/firebase.config.js` :
 ```js
 const FIREBASE_CONFIG = {
-  databaseURL: "https://MON-PROJET-default-rtdb.firebaseio.com/",
-  // apiKey, authDomain, projectId si nécessaire
+  apiKey:            "...",
+  authDomain:        "...",
+  databaseURL:       "https://MON-PROJET-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "...",
+  storageBucket:     "...",
+  messagingSenderId: "...",
+  appId:             "..."
 };
-
-const ADMIN_PIN = "8033";  // changez votre PIN ici
+const ADMIN_PIN = "8033";
 ```
 
-> **Important :** `js/firebase.config.js` est dans `.gitignore` et ne sera jamais poussé.
+> ⚠️ `js/firebase.config.js` est dans `.gitignore` – ne jamais commiter.
 
-### 3. Ouvrir le site
-
-Ouvrez simplement `index.html` dans un navigateur, ou avec l'extension **Live Server** de VS Code.
-
-Aucun build, aucune dépendance NPM nécessaire.
+### 3. Lancer le site
+Ouvrez `index.html` directement dans un navigateur, ou avec **Live Server** (VS Code).
+Aucun build, aucune dépendance NPM.
 
 ---
+
+## UX Flow
+1. **Page d'accueil** → matchs du jour Coupe du Monde (ESPN API)
+2. **Clic sur "▶ Regarder"** → panel de chaînes disponibles pour ce match
+3. **Clic sur une chaîne** → lecteur plein écran
+4. **← Chaînes** → retour à la liste des chaînes
+5. **✕ Quitter** → retour aux matchs
+
+## Ajouter des chaînes
+1. Cliquez sur **⚙ Admin** → entrez le PIN (défaut : `8033`)
+2. Onglet **➕ Ajouter** → remplissez le formulaire
+
+### Préfixes d'URL stream
+| Préfixe   | Type    | Exemple |
+|-----------|---------|---------|
+| `mora=`   | HLS (.m3u8) | `mora=https://…/stream.m3u8` |
+| `embed=`  | Iframe  | `embed=https://player.twitch.tv/…` |
+
+### Mots-clés matchs
+Le champ **Mots-clés matchs** permet d'associer une chaîne à des matchs spécifiques.
+Exemple : `France, Brésil` → la chaîne n'apparaît que pour France vs Brésil.
+Laissez vide pour afficher la chaîne sur tous les matchs.
 
 ## Structure Firebase
-
-Dans votre Firebase Realtime Database, les chaînes sont stockées sous le path `livetv/channels` :
-
-```json
-{
-  "livetv": {
-    "channels": {
-      "-NxABC123": {
-        "name": "beIN Sports 1",
-        "logo": "https://example.com/logo.png",
-        "category": "sports",
-        "url": "mora=https://stream.example.com/live.m3u8"
-      }
-    }
-  }
-}
+```
+livetv/
+  channels/
+    -NxABC123/
+      name:     "beIN Sports 1"
+      logo:     "https://…/logo.png"
+      url:      "mora=https://…/stream.m3u8"
+      category: "sports"
+      matches:  ["France", "Brésil"]
 ```
 
-### Préfixes d'URL
-
-| Préfixe | Type | Exemple |
-|---------|------|---------|
-| `mora=` | Flux HLS (.m3u8) | `mora=https://…/stream.m3u8` |
-| `embed=` | Iframe embarquée | `embed=https://player.twitch.tv/…` |
-
----
-
-## Fonctionnalités
-
-- **Lecteur vidéo** – Streams HLS via hls.js + iframes embarquées
-- **Chaînes live** – Chargement temps-réel depuis Firebase
-- **Scores live** – Premier League & Champions League via l'API ESPN (sans clé)
-- **Panel Admin** – Protégé par PIN, gestion CRUD des chaînes
-- **Responsive** – Mobile-first, fonctionne sur tous les écrans
-
-## Règles de sécurité Firebase (recommandé)
-
+## Règles de sécurité Firebase recommandées
 ```json
 {
   "rules": {
@@ -89,5 +83,3 @@ Dans votre Firebase Realtime Database, les chaînes sont stockées sous le path 
   }
 }
 ```
-
-Pour les écritures depuis le panel admin, utilisez Firebase Authentication ou un backend sécurisé.

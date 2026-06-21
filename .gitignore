@@ -2,3 +2,4 @@ js/firebase.config.js
 config/firebase.config.json
 node_modules/
 .DS_Store
+Thumbs.db
