@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FootLive – Streaming Football</title>
+  <title>KoraLive – Streaming Football</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -14,7 +14,7 @@
   <header class="header">
     <div class="header__brand">
       <span class="header__icon">⚽</span>
-      <span class="header__name">Foot<span class="accent">Live</span></span>
+      <span class="header__name">Kora<span class="accent">Live</span></span>
     </div>
     <div class="header__badge">🌍 Coupe du Monde 2026</div>
     <button class="btn-refresh-top" id="btnRefresh" title="Actualiser">↻</button>
@@ -50,28 +50,6 @@
       <li class="state-msg">Chargement…</li>
     </ul>
   </aside>
-
-  <!-- ══════════════════════════════════════
-       LECTEUR PLEIN ÉCRAN
-  ══════════════════════════════════════ -->
-  <div class="player-overlay" id="playerOverlay" aria-hidden="true">
-    <div class="player-header">
-      <button class="btn-icon btn-back" id="btnBack">← Streams</button>
-      <div class="player-info">
-        <span class="player-match" id="playerMatch">–</span>
-        <span class="player-stream" id="playerStream">–</span>
-      </div>
-      <button class="btn-icon btn-quit" id="btnClosePlayer">✕ Fermer</button>
-    </div>
-    <div class="player-body">
-      <iframe
-        id="streamIframe"
-        allowfullscreen
-        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-        scrolling="no">
-      </iframe>
-    </div>
-  </div>
 
   <!-- ══════════════════════════════════════
        SCRIPTS (ordre : matches → streams → player)

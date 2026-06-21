@@ -5,21 +5,22 @@
 const Streams = (() => {
 
   /* ── Streams embed publics ── */
-  const STREAMS = [
-    { name: 'Stream 1 – beIN Sports 1',  url: 'https://embedme.top/embed/bein-sports-1/1' },
-    { name: 'Stream 2 – beIN Sports 2',  url: 'https://embedme.top/embed/bein-sports-2/1' },
-    { name: 'Stream 3 – Multi Embed',    url: 'https://multiembed.mov/?video_id=sport1' },
-    { name: 'Stream 4 – StreamTP 1',     url: 'https://streamtp.live/bein1.php' },
-    { name: 'Stream 5 – StreamTP 2',     url: 'https://streamtp.live/bein2.php' },
-  ];
 
-  let _onSelect    = null;    /* callback appelé quand un stream est choisi */
+
+const STREAMS = [
+  { name: "beIN Sports 1", url: "https://dlhd.so/embed/stream-1.php" },
+  { name: "beIN Sports 2", url: "https://dlhd.so/embed/stream-2.php" },
+  { name: "beIN Sports 3", url: "https://dlhd.so/embed/stream-3.php" },
+  { name: "beIN Sports 4", url: "https://dlhd.so/embed/stream-4.php" },
+  { name: "beIN Sports Max 1", url: "https://dlhd.so/embed/stream-6.php" },
+  { name: "SSC 1", url: "https://dlhd.so/embed/stream-48.php" },
+  { name: "SSC 2", url: "https://dlhd.so/embed/stream-49.php" },
+  { name: "Arryadia", url: "https://dlhd.so/embed/stream-60.php" },
+  { name: "Canal+ Sport", url: "https://dlhd.so/embed/stream-20.php" },
+  { name: "Sky Sports", url: "https://dlhd.so/embed/stream-11.php" }
+];
+
   let _currentMatch = null;   /* match actuellement affiché dans le panel */
-
-  /* ── Reçoit le callback de sélection de stream ── */
-  function init(onSelect) {
-    _onSelect = onSelect;
-  }
 
   /* ── Ouvre le panel pour un match donné ── */
   function openPanel(match) {
@@ -45,7 +46,7 @@ const Streams = (() => {
     list.querySelectorAll('.stream-item').forEach(item => {
       item.querySelector('.btn-watch-stream').addEventListener('click', () => {
         const idx = parseInt(item.dataset.idx, 10);
-        if (_onSelect) _onSelect(STREAMS[idx], _currentMatch);
+        window.open(STREAMS[idx].url, '_blank');
       });
     });
 
@@ -70,5 +71,5 @@ const Streams = (() => {
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  return { init, openPanel, closePanel };
+  return { openPanel, closePanel };
 })();

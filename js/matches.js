@@ -85,7 +85,7 @@ const Matches = (() => {
       const type = comp.status?.type?.name || '';
       let state = 'NS', clock = '';
 
-      if (type === 'STATUS_IN_PROGRESS') {
+      if (type === 'STATUS_IN_PROGRESS' || type === 'IN') {
         state = 'LIVE';
         clock = (comp.status.displayClock || '') + '\'';
       } else if (type === 'STATUS_FINAL') {
@@ -122,8 +122,8 @@ const Matches = (() => {
 
     /* Badge */
     let badge = '';
-    if (isLive)      badge = `<span class="badge badge--live">⬤ LIVE ${h(match.clock)}</span>`;
-    else if (isFT)   badge = `<span class="badge badge--ft">Terminé</span>`;
+    if (isLive)      badge = `<span class="badge badge--live">🔴 LIVE</span>`;
+    else if (isFT)   badge = `<span class="badge badge--ft">FT</span>`;
     else             badge = `<span class="badge badge--ns">${h(match.clock)}</span>`;
 
     /* Score ou heure centrale */
@@ -185,10 +185,10 @@ const Matches = (() => {
       .forEach(m => grid.appendChild(buildCard(m, onSelect)));
   }
 
-  /* ── Init : 1er chargement + auto-refresh 60 s ── */
+  /* ── Init : 1er chargement + auto-refresh 30 s ── */
   function init(onSelect) {
     render(onSelect);
-    setInterval(() => render(onSelect), 60_000);
+    setInterval(() => render(onSelect), 30_000);
 
     /* Bouton refresh manuel */
     const btn = document.getElementById('btnRefresh');
