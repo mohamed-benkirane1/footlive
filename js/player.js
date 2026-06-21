@@ -1,103 +1,66 @@
 /* ============================================================
-   player.js – Lecteur vidéo HLS + iframe
+   player.js – Lecteur iframe plein écran + câblage des modules
 ============================================================ */
 
 const Player = (() => {
 
-  const videoEl      = document.getElementById('videoPlayer');
-  const iframeEl     = document.getElementById('iframePlayer');
-  const placeholder  = document.getElementById('playerPlaceholder');
-  const msgEl        = document.getElementById('playerMsg');
+  const iframe    = document.getElementById('streamIframe');
+  const overlay   = document.getElementById('playerOverlay');
+  const matchEl   = document.getElementById('playerMatch');
+  const streamEl  = document.getElementById('playerStream');
 
-  let hls = null;
+  /* ── Ouvre le lecteur avec un stream ── */
+  function open(stream, match) {
+    matchEl.textContent  = match ? match.name : '';
+    streamEl.textContent = stream.name;
 
-  /* ── Affiche un seul élément, masque les autres ── */
-  function showOnly(el) {
-    placeholder.style.display = 'none';
-    videoEl.style.display     = 'none';
-    iframeEl.style.display    = 'none';
-    if (el) el.style.display  = 'block';
+    /* Injecte l'URL dans l'iframe */
+    iframe.src = stream.url;
+
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
   }
 
-  /* ── Détruit l'instance HLS en cours ── */
-  function destroyHls() {
-    if (hls) {
-      hls.destroy();
-      hls = null;
-    }
+  /* ── Ferme le lecteur et arrête le stream ── */
+  function close() {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    /* Vide le src pour couper le son / la vidéo */
+    setTimeout(() => { iframe.src = ''; }, 310);
   }
 
-  /* ── Lecture HLS via hls.js ── */
-  function playHls(url) {
-    destroyHls();
-    showOnly(videoEl);
-
-    if (Hls.isSupported()) {
-      hls = new Hls({
-        enableWorker:   true,
-        lowLatencyMode: true,
-        backBufferLength: 30,
-      });
-      hls.loadSource(url);
-      hls.attachMedia(videoEl);
-
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        videoEl.play().catch(() => {
-          /* L'autoplay est parfois bloqué par le navigateur */
-        });
-      });
-
-      hls.on(Hls.Events.ERROR, (_, data) => {
-        if (data.fatal) {
-          console.error('[Player] Erreur HLS fatale :', data.type, data.details);
-          showError('Erreur de stream. Vérifiez l\'URL ou réessayez.');
-        }
-      });
-
-    } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
-      /* Safari – support HLS natif */
-      videoEl.src = url;
-      videoEl.play().catch(() => {});
-    } else {
-      showError('Votre navigateur ne supporte pas la lecture HLS.');
-    }
-  }
-
-  /* ── Lecture via iframe (embed=) ── */
-  function playIframe(url) {
-    destroyHls();
-    showOnly(iframeEl);
-    iframeEl.src = url;
-  }
-
-  /* ── Charge une chaîne (détecte le type selon le préfixe) ── */
-  function load(channel) {
-    const url = channel.url || '';
-
-    if (url.startsWith('mora='))  playHls(url.slice(5));
-    else if (url.startsWith('embed=')) playIframe(url.slice(6));
-    else if (url.includes('.m3u8'))    playHls(url);
-    else if (url.startsWith('http'))   playIframe(url);
-    else showError('Format d\'URL non reconnu.');
-  }
-
-  /* ── Affiche un message d'erreur dans le placeholder ── */
-  function showError(msg) {
-    showOnly(null);
-    placeholder.style.display = 'flex';
-    if (msgEl) msgEl.textContent = msg;
-  }
-
-  /* ── Réinitialise le lecteur ── */
-  function reset() {
-    destroyHls();
-    videoEl.src  = '';
-    iframeEl.src = '';
-    placeholder.style.display = 'flex';
-    videoEl.style.display     = 'none';
-    iframeEl.style.display    = 'none';
-    if (msgEl) msgEl.textContent = 'Chargement du stream…';
-  }
-
-  return { load, reset };
+  return { open, close };
 })();
+
+/* ============================================================
+   CÂBLAGE PRINCIPAL
+   player.js est le dernier script chargé →
+   Matches et Streams sont déjà définis.
+============================================================ */
+
+/* Matchs → ouvre le panel streams */
+Matches.init((match) => Streams.openPanel(match));
+
+/* Streams → ouvre le lecteur */
+Streams.init((stream, match) => Player.open(stream, match));
+
+/* "← Streams" : ferme le lecteur, le panel reste ouvert derrière */
+document.getElementById('btnBack').addEventListener('click', () => {
+  Player.close();
+});
+
+/* "✕ Fermer" : ferme le lecteur ET le panel */
+document.getElementById('btnClosePlayer').addEventListener('click', () => {
+  Player.close();
+  Streams.closePanel();
+});
+
+/* Fermeture du panel streams */
+document.getElementById('btnCloseStreams').addEventListener('click', () => {
+  Streams.closePanel();
+});
+
+/* Clic sur l'overlay → ferme le panel streams */
+document.getElementById('overlay').addEventListener('click', () => {
+  Streams.closePanel();
+});

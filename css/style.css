@@ -1,5 +1,6 @@
 /* ============================================================
    style.css – FootLive · Thème dark · Mobile-first
+   Style inspiré Koora Live
 ============================================================ */
 
 /* ── Variables ── */
@@ -7,14 +8,15 @@
   --bg:        #0a0f1e;
   --bg-card:   #111827;
   --bg-card-2: #1a2236;
+  --bg-card-3: #0f1a2e;
   --green:     #00c853;
   --red:       #e03030;
   --text:      #e8eaf0;
   --text-dim:  #8b9bb4;
   --border:    #1e2d45;
-  --h:         56px;       /* hauteur header */
-  --panel-w:   360px;      /* largeur panel chaînes */
-  --r:         10px;       /* border-radius */
+  --h:         56px;
+  --panel-w:   360px;
+  --r:         10px;
   --r-sm:      6px;
   --t:         0.25s ease;
   --shadow:    0 8px 40px rgba(0,0,0,0.55);
@@ -22,18 +24,18 @@
 
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; }
-body {
+html  { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body  {
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
 }
-ul  { list-style: none; }
-img { display: block; }
+ul    { list-style: none; }
+img   { display: block; }
 button { cursor: pointer; font-family: inherit; border: none; background: none; }
-input, select { font-family: inherit; }
+iframe { display: block; }
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
@@ -67,7 +69,7 @@ input, select { font-family: inherit; }
 .header__icon { font-size: 1.25rem; }
 
 .header__name {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.5px;
   white-space: nowrap;
@@ -78,27 +80,34 @@ input, select { font-family: inherit; }
 .header__badge {
   flex: 1;
   text-align: center;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-dim);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.btn-admin {
+.btn-refresh-top {
   background: var(--bg-card-2);
   border: 1px solid var(--border);
   color: var(--text-dim);
-  padding: 0.38rem 0.8rem;
+  width: 34px;
+  height: 34px;
   border-radius: var(--r-sm);
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  transition: var(--t);
+  transition: color var(--t), border-color var(--t);
 }
-.btn-admin:hover { border-color: var(--green); color: var(--green); }
+.btn-refresh-top:hover { color: var(--green); border-color: var(--green); }
+.btn-refresh-top.spinning { animation: spin 0.45s linear; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ============================================================
-   MAIN – MATCHS DU JOUR
+   MAIN – MATCHS
 ============================================================ */
 .main {
   margin-top: var(--h);
@@ -109,9 +118,6 @@ input, select { font-family: inherit; }
 }
 
 .section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 1.25rem;
 }
 
@@ -120,22 +126,7 @@ input, select { font-family: inherit; }
   font-weight: 800;
 }
 
-.btn-refresh {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  width: 36px;
-  height: 36px;
-  border-radius: var(--r-sm);
-  font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color var(--t), border-color var(--t);
-}
-.btn-refresh:hover { color: var(--green); border-color: var(--green); }
-
-/* ── Grille de cards ── */
+/* ── Grille ── */
 .matches-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -147,19 +138,18 @@ input, select { font-family: inherit; }
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--r);
-  padding: 1rem;
+  padding: 1rem 1rem 0.85rem;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
   transition: transform var(--t), box-shadow var(--t), border-color var(--t);
+  cursor: pointer;
 }
-
 .match-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow);
 }
-
-.match-card--live { border-color: rgba(224,48,48,0.4); }
+.match-card--live { border-color: rgba(224,48,48,0.45); }
 
 /* Badges statut */
 .badge {
@@ -168,31 +158,28 @@ input, select { font-family: inherit; }
   font-weight: 700;
   padding: 0.2rem 0.55rem;
   border-radius: var(--r-sm);
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
 }
-
 .badge--live {
   background: var(--red);
   color: #fff;
-  animation: pulse 1.5s infinite;
+  animation: blink 1.5s infinite;
 }
-
 .badge--ft {
   background: rgba(0,200,83,0.18);
   color: var(--green);
 }
-
 .badge--ns {
-  background: rgba(21,101,192,0.2);
+  background: rgba(21,101,192,0.22);
   color: #64b5f6;
 }
 
-@keyframes pulse {
+@keyframes blink {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.55; }
+  50%       { opacity: 0.5; }
 }
 
-/* Équipes + score */
+/* Équipes */
 .match-teams {
   display: flex;
   align-items: center;
@@ -212,16 +199,17 @@ input, select { font-family: inherit; }
 .team--away { align-items: flex-end; }
 
 .team-logo {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
   flex-shrink: 0;
 }
 
 .team-logo-fb {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   background: var(--bg-card-2);
+  border: 1px solid var(--border);
   border-radius: var(--r-sm);
   display: flex;
   align-items: center;
@@ -234,7 +222,7 @@ input, select { font-family: inherit; }
 }
 
 .team-name {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -245,27 +233,26 @@ input, select { font-family: inherit; }
 .team--home .team-name { text-align: left; }
 .team--away .team-name { text-align: right; }
 
-/* Score / heure */
+/* Score / Heure */
 .match-score {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 900;
   text-align: center;
-  min-width: 68px;
+  min-width: 70px;
   flex-shrink: 0;
   color: var(--text);
+  line-height: 1;
 }
-
 .score-sep {
   color: var(--text-dim);
   font-weight: 400;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
 }
-
 .match-time {
   font-size: 1rem;
   font-weight: 700;
   text-align: center;
-  min-width: 68px;
+  min-width: 70px;
   flex-shrink: 0;
   color: var(--text-dim);
 }
@@ -276,7 +263,7 @@ input, select { font-family: inherit; }
   color: #000;
   padding: 0.6rem 1rem;
   border-radius: var(--r-sm);
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 700;
   width: 100%;
   transition: opacity var(--t);
@@ -284,7 +271,7 @@ input, select { font-family: inherit; }
 }
 .btn-watch:hover { opacity: 0.82; }
 
-/* État vide / chargement */
+/* États vides */
 .state-msg {
   color: var(--text-dim);
   font-size: 0.9rem;
@@ -294,13 +281,13 @@ input, select { font-family: inherit; }
 }
 
 /* ============================================================
-   OVERLAY (fond sombre)
+   OVERLAY
 ============================================================ */
 .overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.68);
+  background: rgba(0,0,0,0.7);
   z-index: 200;
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
@@ -308,9 +295,9 @@ input, select { font-family: inherit; }
 .overlay.active { display: block; }
 
 /* ============================================================
-   PANEL CHAÎNES (slide depuis la droite)
+   PANEL STREAMS (slide depuis la droite)
 ============================================================ */
-.channel-panel {
+.stream-panel {
   position: fixed;
   top: var(--h);
   right: 0;
@@ -325,10 +312,9 @@ input, select { font-family: inherit; }
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: -8px 0 40px rgba(0,0,0,0.45);
 }
+.stream-panel.open { transform: translateX(0); }
 
-.channel-panel.open { transform: translateX(0); }
-
-/* ── En-tête commun panel / admin ── */
+/* En-tête panel */
 .panel-header {
   display: flex;
   align-items: center;
@@ -340,56 +326,63 @@ input, select { font-family: inherit; }
 }
 
 .panel-title {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  line-height: 1.35;
   flex: 1;
 }
 
-/* ── Liste chaînes ── */
-.channel-list {
+/* Nom du match sous le titre */
+.panel-match-name {
+  padding: 0.5rem 1rem 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Liste des streams */
+.stream-list {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 1rem;
 }
 
-.channel-list .state-msg {
-  padding: 2rem 1rem;
-}
-
-.channel-item {
+.stream-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.8rem 1rem;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
   border-bottom: 1px solid var(--border);
   transition: background var(--t);
 }
-.channel-item:hover { background: var(--bg-card-2); }
+.stream-item:hover { background: var(--bg-card-2); }
 
-.ch-logo {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
+/* Numéro / indicateur stream */
+.stream-num {
+  width: 32px;
+  height: 32px;
+  background: rgba(0,200,83,0.12);
+  border: 1px solid rgba(0,200,83,0.3);
   border-radius: var(--r-sm);
-  background: var(--bg-card-2);
-  flex-shrink: 0;
-}
-
-.ch-logo-fb {
-  width: 40px;
-  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--green);
   flex-shrink: 0;
-  background: var(--bg-card-2);
-  border-radius: var(--r-sm);
 }
 
-.ch-name {
+.stream-info {
   flex: 1;
+  min-width: 0;
+}
+
+.stream-name {
+  display: block;
   font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
@@ -397,7 +390,17 @@ input, select { font-family: inherit; }
   text-overflow: ellipsis;
 }
 
-.btn-watch-ch {
+/* Indicateur LIVE */
+.stream-live-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--red);
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+  flex-shrink: 0;
+}
+
+.btn-watch-stream {
   background: var(--green);
   color: #000;
   padding: 0.35rem 0.7rem;
@@ -407,7 +410,7 @@ input, select { font-family: inherit; }
   flex-shrink: 0;
   transition: opacity var(--t);
 }
-.btn-watch-ch:hover { opacity: 0.82; }
+.btn-watch-stream:hover { opacity: 0.82; }
 
 /* ============================================================
    LECTEUR PLEIN ÉCRAN
@@ -420,18 +423,17 @@ input, select { font-family: inherit; }
   display: flex;
   flex-direction: column;
   transform: translateY(100%);
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 .player-overlay.open { transform: translateY(0); }
 
-/* En-tête lecteur */
+/* Header du lecteur */
 .player-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.7rem 1rem;
-  background: rgba(10,15,30,0.95);
+  padding: 0.65rem 1rem;
+  background: rgba(10,15,30,0.96);
   border-bottom: 1px solid rgba(255,255,255,0.07);
   flex-shrink: 0;
 }
@@ -445,8 +447,8 @@ input, select { font-family: inherit; }
   gap: 2px;
 }
 
-.player-channel-name {
-  font-size: 0.9rem;
+.player-match {
+  font-size: 0.88rem;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -454,8 +456,8 @@ input, select { font-family: inherit; }
   max-width: 100%;
 }
 
-.player-match-name {
-  font-size: 0.72rem;
+.player-stream {
+  font-size: 0.7rem;
   color: var(--text-dim);
   white-space: nowrap;
   overflow: hidden;
@@ -463,37 +465,20 @@ input, select { font-family: inherit; }
   max-width: 100%;
 }
 
-/* Corps lecteur */
+/* Corps du lecteur */
 .player-body {
   flex: 1;
   position: relative;
   background: #000;
 }
 
-#videoPlayer,
-#iframePlayer {
+#streamIframe {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   border: none;
-  display: none;
-}
-
-.player-placeholder {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  color: var(--text-dim);
-}
-
-.placeholder-icon {
-  font-size: 3.5rem;
-  opacity: 0.25;
+  background: #000;
 }
 
 /* ── Boutons icône ── */
@@ -513,264 +498,8 @@ input, select { font-family: inherit; }
 .btn-back { color: var(--green); }
 .btn-back:hover { color: var(--green); }
 
-.btn-quit { color: rgba(224,48,48,0.75); }
+.btn-quit { color: rgba(224,48,48,0.8); }
 .btn-quit:hover { color: var(--red); }
-
-/* ============================================================
-   MODAL PIN
-============================================================ */
-.pin-modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.78);
-  z-index: 500;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(4px);
-}
-.pin-modal.open { display: flex; }
-
-.pin-modal__box {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 2rem 1.75rem;
-  text-align: center;
-  width: min(360px, 92vw);
-  box-shadow: var(--shadow);
-}
-
-.pin-modal__box h2 { font-size: 1.15rem; margin-bottom: 0.5rem; }
-
-.pin-subtitle {
-  font-size: 0.83rem;
-  color: var(--text-dim);
-  margin-bottom: 1.5rem;
-}
-
-.pin-inputs {
-  display: flex;
-  gap: 0.7rem;
-  justify-content: center;
-  margin-bottom: 0.85rem;
-}
-
-.pin-digit {
-  width: 52px;
-  height: 56px;
-  background: var(--bg-card-2);
-  border: 2px solid var(--border);
-  color: var(--text);
-  border-radius: var(--r-sm);
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-  outline: none;
-  transition: border-color var(--t);
-}
-.pin-digit:focus { border-color: var(--green); }
-
-.pin-error {
-  color: var(--red);
-  font-size: 0.8rem;
-  min-height: 1.2em;
-  margin-bottom: 0.75rem;
-}
-
-/* ============================================================
-   PANEL ADMIN (bottom sheet)
-============================================================ */
-.admin-panel {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 72vh;
-  background: var(--bg-card);
-  border-top: 1px solid var(--border);
-  border-radius: var(--r) var(--r) 0 0;
-  z-index: 400;
-  display: flex;
-  flex-direction: column;
-  transform: translateY(100%);
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.55);
-}
-.admin-panel.open { transform: translateY(0); }
-
-.admin-panel__handle {
-  width: 36px;
-  height: 4px;
-  background: var(--border);
-  border-radius: 2px;
-  margin: 10px auto 0;
-  flex-shrink: 0;
-}
-
-/* Onglets admin */
-.admin-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.admin-tab {
-  flex: 1;
-  padding: 0.72rem 0.5rem;
-  color: var(--text-dim);
-  font-size: 0.78rem;
-  font-weight: 600;
-  border-bottom: 2px solid transparent;
-  transition: var(--t);
-}
-.admin-tab:hover { color: var(--text); }
-.admin-tab.active { color: var(--green); border-bottom-color: var(--green); }
-
-/* Corps admin */
-.admin-body {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-}
-
-.admin-pane {
-  display: none;
-  position: absolute;
-  inset: 0;
-  overflow-y: auto;
-  padding: 1rem;
-}
-.admin-pane.active { display: block; }
-
-/* Liste chaînes admin */
-.admin-ch-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.admin-ch-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: var(--bg-card-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  padding: 0.7rem 0.85rem;
-}
-
-.admin-ch-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.admin-ch-name {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.admin-ch-cat {
-  font-size: 0.7rem;
-  color: var(--text-dim);
-  margin-top: 1px;
-}
-
-.btn-delete {
-  border: 1px solid var(--red);
-  color: var(--red);
-  padding: 0.28rem 0.6rem;
-  border-radius: var(--r-sm);
-  font-size: 0.75rem;
-  flex-shrink: 0;
-  transition: background var(--t);
-}
-.btn-delete:hover { background: rgba(224,48,48,0.12); }
-
-/* ============================================================
-   FORMULAIRES
-============================================================ */
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  max-width: 520px;
-}
-
-.form h3 { font-size: 1rem; margin-bottom: 0.25rem; }
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.form-group label {
-  font-size: 0.78rem;
-  color: var(--text-dim);
-  font-weight: 500;
-}
-
-.required { color: var(--red); }
-
-.form-group input,
-.form-group select {
-  background: var(--bg-card-2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: var(--r-sm);
-  padding: 0.55rem 0.75rem;
-  font-size: 0.875rem;
-  outline: none;
-  transition: border-color var(--t);
-}
-.form-group input:focus,
-.form-group select:focus { border-color: var(--green); }
-.form-group input::placeholder { color: var(--text-dim); }
-
-.form-group small { font-size: 0.7rem; color: var(--text-dim); }
-.form-group code {
-  color: var(--green);
-  background: rgba(0,200,83,0.1);
-  padding: 0 3px;
-  border-radius: 3px;
-  font-size: 0.9em;
-}
-
-/* ── Boutons ── */
-.btn-primary {
-  background: var(--green);
-  color: #000;
-  padding: 0.6rem 1.25rem;
-  border-radius: var(--r-sm);
-  font-size: 0.875rem;
-  font-weight: 700;
-  align-self: flex-start;
-  transition: opacity var(--t);
-}
-.btn-primary:hover { opacity: 0.83; }
-
-.btn-ghost {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  padding: 0.5rem 1.25rem;
-  border-radius: var(--r-sm);
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  transition: var(--t);
-}
-.btn-ghost:hover { color: var(--text); border-color: var(--text-dim); }
-
-/* Feedback formulaire */
-.form-feedback {
-  font-size: 0.8rem;
-  min-height: 1.2em;
-}
-.form-feedback.success { color: var(--green); }
-.form-feedback.error   { color: var(--red); }
 
 /* ============================================================
    RESPONSIVE
@@ -780,15 +509,9 @@ input, select { font-family: inherit; }
 
   .matches-grid { grid-template-columns: 1fr; }
 
-  .channel-panel { width: 100%; border-left: none; }
-
-  .admin-panel { height: 88vh; }
+  .stream-panel { width: 100%; border-left: none; }
 
   .player-header { padding: 0.5rem 0.75rem; gap: 0.5rem; }
-  .btn-icon { padding: 0.35rem 0.6rem; font-size: 0.75rem; }
-}
-
-@media (max-width: 380px) {
-  .pin-digit  { width: 44px; height: 48px; font-size: 1.25rem; }
-  .pin-inputs { gap: 0.5rem; }
+  .btn-icon { padding: 0.35rem 0.55rem; font-size: 0.75rem; }
+  .player-match { font-size: 0.8rem; }
 }

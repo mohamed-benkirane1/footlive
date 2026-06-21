@@ -6,18 +6,18 @@ const Matches = (() => {
 
   const ENDPOINT = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard';
 
-  /* Matchs mock utilisés si l'API est indisponible */
+  /* Matchs mockés utilisés si l'API est indisponible */
   const MOCK = [
     {
-      id: 'mock1', name: 'France vs Brésil',
+      id: 'm1', name: 'France vs Brésil',
       homeName: 'France',    homeShort: 'FRA',
       homeLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/fra.png',
       awayName: 'Brésil',   awayShort: 'BRA',
       awayLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/bra.png',
-      scoreH: 2, scoreA: 1, state: 'LIVE', clock: '74\'',
+      scoreH: 2, scoreA: 1, state: 'LIVE', clock: '68\'',
     },
     {
-      id: 'mock2', name: 'Argentine vs Allemagne',
+      id: 'm2', name: 'Argentine vs Allemagne',
       homeName: 'Argentine', homeShort: 'ARG',
       homeLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/arg.png',
       awayName: 'Allemagne', awayShort: 'GER',
@@ -25,7 +25,7 @@ const Matches = (() => {
       scoreH: 1, scoreA: 2, state: 'FT', clock: '',
     },
     {
-      id: 'mock3', name: 'Espagne vs Portugal',
+      id: 'm3', name: 'Espagne vs Portugal',
       homeName: 'Espagne',  homeShort: 'ESP',
       homeLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/esp.png',
       awayName: 'Portugal', awayShort: 'POR',
@@ -33,16 +33,32 @@ const Matches = (() => {
       scoreH: 0, scoreA: 0, state: 'NS', clock: '18:00',
     },
     {
-      id: 'mock4', name: 'Maroc vs Sénégal',
+      id: 'm4', name: 'Maroc vs Sénégal',
       homeName: 'Maroc',   homeShort: 'MAR',
       homeLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/mar.png',
       awayName: 'Sénégal', awayShort: 'SEN',
       awayLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/sen.png',
       scoreH: 0, scoreA: 0, state: 'NS', clock: '21:00',
     },
+    {
+      id: 'm5', name: 'USA vs Mexique',
+      homeName: 'USA',     homeShort: 'USA',
+      homeLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/usa.png',
+      awayName: 'Mexique', awayShort: 'MEX',
+      awayLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/mex.png',
+      scoreH: 0, scoreA: 0, state: 'NS', clock: '00:00',
+    },
+    {
+      id: 'm6', name: 'Brésil vs Cameroun',
+      homeName: 'Brésil',   homeShort: 'BRA',
+      homeLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/bra.png',
+      awayName: 'Cameroun', awayShort: 'CMR',
+      awayLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/cmr.png',
+      scoreH: 3, scoreA: 1, state: 'FT', clock: '',
+    },
   ];
 
-  /* ── Récupère les matchs depuis ESPN ── */
+  /* ── Appel ESPN API ── */
   async function fetchData() {
     try {
       const res = await fetch(ENDPOINT);
@@ -51,7 +67,7 @@ const Matches = (() => {
       const parsed = parseESPN(data);
       return parsed.length ? parsed : MOCK;
     } catch (err) {
-      console.warn('[Matches] API indisponible, utilisation des mock :', err.message);
+      console.warn('[Matches] ESPN API indisponible — données mock :', err.message);
       return MOCK;
     }
   }
@@ -66,13 +82,13 @@ const Matches = (() => {
       const home  = teams.find(t => t.homeAway === 'home') || teams[0];
       const away  = teams.find(t => t.homeAway === 'away') || teams[1];
 
-      const typeName = comp.status?.type?.name || '';
+      const type = comp.status?.type?.name || '';
       let state = 'NS', clock = '';
 
-      if (typeName === 'STATUS_IN_PROGRESS') {
+      if (type === 'STATUS_IN_PROGRESS') {
         state = 'LIVE';
         clock = (comp.status.displayClock || '') + '\'';
-      } else if (typeName === 'STATUS_FINAL') {
+      } else if (type === 'STATUS_FINAL') {
         state = 'FT';
       } else {
         const d = new Date(event.date);
@@ -99,34 +115,34 @@ const Matches = (() => {
     });
   }
 
-  /* ── Construit une card de match ── */
-  function buildCard(match, onWatch) {
+  /* ── Construit une card ── */
+  function buildCard(match, onSelect) {
     const isLive = match.state === 'LIVE';
     const isFT   = match.state === 'FT';
 
     /* Badge */
     let badge = '';
-    if (isLive) badge = `<span class="badge badge--live">⬤ LIVE ${esc(match.clock)}</span>`;
-    else if (isFT) badge = `<span class="badge badge--ft">Terminé</span>`;
-    else badge = `<span class="badge badge--ns">${esc(match.clock)}</span>`;
+    if (isLive)      badge = `<span class="badge badge--live">⬤ LIVE ${h(match.clock)}</span>`;
+    else if (isFT)   badge = `<span class="badge badge--ft">Terminé</span>`;
+    else             badge = `<span class="badge badge--ns">${h(match.clock)}</span>`;
 
-    /* Score ou heure */
-    const centerEl = (isLive || isFT)
+    /* Score ou heure centrale */
+    const center = (isLive || isFT)
       ? `<div class="match-score">${match.scoreH}<span class="score-sep"> – </span>${match.scoreA}</div>`
-      : `<div class="match-time">${esc(match.clock)}</div>`;
+      : `<div class="match-time">${h(match.clock)}</div>`;
 
-    /* Logos */
+    /* Logos avec fallback */
     const logoH = match.homeLogo
-      ? `<img class="team-logo" src="${esc(match.homeLogo)}" alt="${esc(match.homeName)}"
+      ? `<img class="team-logo" src="${h(match.homeLogo)}" alt="${h(match.homeName)}"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
       : '';
-    const fbH = `<div class="team-logo-fb" ${match.homeLogo ? 'style="display:none"' : ''}>${esc(match.homeShort || '?')}</div>`;
+    const fbH = `<div class="team-logo-fb" ${match.homeLogo ? 'style="display:none"' : ''}>${h(match.homeShort || '?')}</div>`;
 
     const logoA = match.awayLogo
-      ? `<img class="team-logo" src="${esc(match.awayLogo)}" alt="${esc(match.awayName)}"
+      ? `<img class="team-logo" src="${h(match.awayLogo)}" alt="${h(match.awayName)}"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
       : '';
-    const fbA = `<div class="team-logo-fb" ${match.awayLogo ? 'style="display:none"' : ''}>${esc(match.awayShort || '?')}</div>`;
+    const fbA = `<div class="team-logo-fb" ${match.awayLogo ? 'style="display:none"' : ''}>${h(match.awayShort || '?')}</div>`;
 
     const card = document.createElement('article');
     card.className = `match-card${isLive ? ' match-card--live' : ''}`;
@@ -135,22 +151,22 @@ const Matches = (() => {
       <div class="match-teams">
         <div class="team team--home">
           ${logoH}${fbH}
-          <span class="team-name">${esc(match.homeName)}</span>
+          <span class="team-name">${h(match.homeName)}</span>
         </div>
-        ${centerEl}
+        ${center}
         <div class="team team--away">
-          <span class="team-name">${esc(match.awayName)}</span>
+          <span class="team-name">${h(match.awayName)}</span>
           ${logoA}${fbA}
         </div>
       </div>
       <button class="btn-watch">▶ Regarder</button>`;
 
-    card.querySelector('.btn-watch').addEventListener('click', () => onWatch(match));
+    card.querySelector('.btn-watch').addEventListener('click', () => onSelect(match));
     return card;
   }
 
-  /* ── Rend tous les matchs dans la grille ── */
-  async function render(onWatch) {
+  /* ── Rend la grille de matchs ── */
+  async function render(onSelect) {
     const grid = document.getElementById('matchesGrid');
     grid.innerHTML = '<p class="state-msg">Chargement des matchs…</p>';
 
@@ -162,34 +178,32 @@ const Matches = (() => {
       return;
     }
 
-    /* Tri : LIVE en premier, puis NS par heure, puis FT */
+    /* Tri : LIVE en premier, puis NS, puis FT */
     const order = { LIVE: 0, NS: 1, FT: 2 };
     matches
       .sort((a, b) => (order[a.state] ?? 1) - (order[b.state] ?? 1))
-      .forEach(m => grid.appendChild(buildCard(m, onWatch)));
+      .forEach(m => grid.appendChild(buildCard(m, onSelect)));
   }
 
-  /* ── Initialise : premier chargement + intervalle 60 s ── */
-  function init(onWatch) {
-    render(onWatch);
-    setInterval(() => render(onWatch), 60_000);
+  /* ── Init : 1er chargement + auto-refresh 60 s ── */
+  function init(onSelect) {
+    render(onSelect);
+    setInterval(() => render(onSelect), 60_000);
 
-    document.getElementById('btnRefresh').addEventListener('click', () => {
-      const btn = document.getElementById('btnRefresh');
-      btn.style.transition = 'transform 0.45s ease';
-      btn.style.transform  = 'rotate(360deg)';
-      setTimeout(() => { btn.style.transform = ''; btn.style.transition = ''; }, 460);
-      render(onWatch);
+    /* Bouton refresh manuel */
+    const btn = document.getElementById('btnRefresh');
+    btn.addEventListener('click', () => {
+      btn.classList.add('spinning');
+      setTimeout(() => btn.classList.remove('spinning'), 460);
+      render(onSelect);
     });
   }
 
   /* ── Échappement HTML ── */
-  function esc(s) {
+  function h(s) {
     return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   return { init };

@@ -5,189 +5,79 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FootLive – Streaming Football</title>
   <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════
+  <!-- ══════════════════════════════════════
        HEADER
-  ═══════════════════════════════════ -->
+  ══════════════════════════════════════ -->
   <header class="header">
     <div class="header__brand">
       <span class="header__icon">⚽</span>
       <span class="header__name">Foot<span class="accent">Live</span></span>
     </div>
     <div class="header__badge">🌍 Coupe du Monde 2026</div>
-    <button class="btn-admin" id="btnAdmin">⚙ Admin</button>
+    <button class="btn-refresh-top" id="btnRefresh" title="Actualiser">↻</button>
   </header>
 
-  <!-- ═══════════════════════════════════
-       CONTENU PRINCIPAL – Matchs du Jour
-  ═══════════════════════════════════ -->
+  <!-- ══════════════════════════════════════
+       MATCHS DU JOUR
+  ══════════════════════════════════════ -->
   <main class="main">
     <div class="section-header">
       <h1 class="section-title">Matchs du Jour</h1>
-      <button class="btn-refresh" id="btnRefresh" title="Actualiser">↻</button>
     </div>
     <div class="matches-grid" id="matchesGrid">
       <p class="state-msg">Chargement des matchs…</p>
     </div>
   </main>
 
-  <!-- ═══════════════════════════════════
-       OVERLAY (assombrit le fond)
-  ═══════════════════════════════════ -->
+  <!-- ══════════════════════════════════════
+       OVERLAY (fond sombre)
+  ══════════════════════════════════════ -->
   <div class="overlay" id="overlay"></div>
 
-  <!-- ═══════════════════════════════════
-       PANEL CHAÎNES (slide depuis la droite)
-  ═══════════════════════════════════ -->
-  <aside class="channel-panel" id="channelPanel" aria-hidden="true">
+  <!-- ══════════════════════════════════════
+       PANEL STREAMS (slide depuis la droite)
+  ══════════════════════════════════════ -->
+  <aside class="stream-panel" id="streamPanel" aria-hidden="true">
     <div class="panel-header">
-      <h2 class="panel-title" id="channelPanelTitle">📺 Chaînes disponibles</h2>
-      <button class="btn-icon" id="btnCloseChannels" title="Fermer">✕</button>
+      <h2 class="panel-title" id="streamPanelTitle">📺 Streams disponibles</h2>
+      <button class="btn-icon" id="btnCloseStreams" title="Fermer">✕</button>
     </div>
-    <ul class="channel-list" id="channelList">
+    <p class="panel-match-name" id="panelMatchName"></p>
+    <ul class="stream-list" id="streamList">
       <li class="state-msg">Chargement…</li>
     </ul>
   </aside>
 
-  <!-- ═══════════════════════════════════
+  <!-- ══════════════════════════════════════
        LECTEUR PLEIN ÉCRAN
-  ═══════════════════════════════════ -->
+  ══════════════════════════════════════ -->
   <div class="player-overlay" id="playerOverlay" aria-hidden="true">
     <div class="player-header">
-      <button class="btn-icon btn-back" id="btnBackToChannels">← Chaînes</button>
+      <button class="btn-icon btn-back" id="btnBack">← Streams</button>
       <div class="player-info">
-        <span class="player-channel-name" id="playerChannelName">–</span>
-        <span class="player-match-name" id="playerMatchName">–</span>
+        <span class="player-match" id="playerMatch">–</span>
+        <span class="player-stream" id="playerStream">–</span>
       </div>
-      <button class="btn-icon btn-quit" id="btnClosePlayer">✕ Quitter</button>
+      <button class="btn-icon btn-quit" id="btnClosePlayer">✕ Fermer</button>
     </div>
     <div class="player-body">
-      <div class="player-placeholder" id="playerPlaceholder">
-        <div class="placeholder-icon">▶</div>
-        <p id="playerMsg">Chargement du stream…</p>
-      </div>
-      <video id="videoPlayer" controls playsinline></video>
-      <iframe id="iframePlayer"
+      <iframe
+        id="streamIframe"
         allowfullscreen
-        allow="autoplay; encrypted-media; picture-in-picture">
+        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+        scrolling="no">
       </iframe>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════
-       MODAL PIN
-  ═══════════════════════════════════ -->
-  <div class="pin-modal" id="pinModal" aria-hidden="true">
-    <div class="pin-modal__box">
-      <h2>🔐 Accès Admin</h2>
-      <p class="pin-subtitle">Entrez votre code PIN à 4 chiffres</p>
-      <div class="pin-inputs">
-        <input class="pin-digit" type="password" maxlength="1" inputmode="numeric" autocomplete="off">
-        <input class="pin-digit" type="password" maxlength="1" inputmode="numeric" autocomplete="off">
-        <input class="pin-digit" type="password" maxlength="1" inputmode="numeric" autocomplete="off">
-        <input class="pin-digit" type="password" maxlength="1" inputmode="numeric" autocomplete="off">
-      </div>
-      <p class="pin-error" id="pinError"></p>
-      <button class="btn-ghost" id="btnCancelPin">Annuler</button>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════
-       PANEL ADMIN (bottom sheet)
-  ═══════════════════════════════════ -->
-  <div class="admin-panel" id="adminPanel" aria-hidden="true">
-    <div class="admin-panel__handle"></div>
-    <div class="panel-header">
-      <h2>⚙ Administration</h2>
-      <button class="btn-icon" id="btnCloseAdmin">✕</button>
-    </div>
-
-    <div class="admin-tabs" role="tablist">
-      <button class="admin-tab active" data-tab="channels">📋 Chaînes</button>
-      <button class="admin-tab" data-tab="add">➕ Ajouter</button>
-      <button class="admin-tab" data-tab="settings">🔧 Paramètres</button>
-    </div>
-
-    <div class="admin-body">
-
-      <!-- Liste des chaînes -->
-      <div class="admin-pane active" id="admin-channels">
-        <ul class="admin-ch-list" id="adminChannelList">
-          <li class="state-msg">Chargement…</li>
-        </ul>
-      </div>
-
-      <!-- Formulaire Ajouter -->
-      <div class="admin-pane" id="admin-add">
-        <form class="form" id="addChannelForm" novalidate>
-          <div class="form-group">
-            <label for="newName">Nom de la chaîne <span class="required">*</span></label>
-            <input id="newName" type="text" placeholder="ex : beIN Sports 1" required />
-          </div>
-          <div class="form-group">
-            <label for="newLogo">URL du logo</label>
-            <input id="newLogo" type="url" placeholder="https://…/logo.png" />
-          </div>
-          <div class="form-group">
-            <label for="newUrl">URL du stream <span class="required">*</span></label>
-            <input id="newUrl" type="text" placeholder="mora=https://… ou embed=https://…" required />
-            <small>Préfixe <code>mora=</code> pour HLS · <code>embed=</code> pour iframe</small>
-          </div>
-          <div class="form-group">
-            <label for="newCategory">Catégorie</label>
-            <select id="newCategory">
-              <option value="general">Général</option>
-              <option value="sports">Sports</option>
-              <option value="football">Football</option>
-              <option value="premium">Premium</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="newMatches">Mots-clés matchs</label>
-            <input id="newMatches" type="text" placeholder="France, Brésil, Real Madrid" />
-            <small>Séparés par des virgules — laissez vide pour afficher sur tous les matchs</small>
-          </div>
-          <button type="submit" class="btn-primary">➕ Ajouter la chaîne</button>
-          <p class="form-feedback" id="addFeedback"></p>
-        </form>
-      </div>
-
-      <!-- Paramètres -->
-      <div class="admin-pane" id="admin-settings">
-        <form class="form" id="changePinForm" novalidate>
-          <h3>Changer le code PIN</h3>
-          <div class="form-group">
-            <label for="currentPin">PIN actuel</label>
-            <input id="currentPin" type="password" maxlength="4" inputmode="numeric" />
-          </div>
-          <div class="form-group">
-            <label for="newPinSetting">Nouveau PIN (4 chiffres)</label>
-            <input id="newPinSetting" type="password" maxlength="4" inputmode="numeric" />
-          </div>
-          <div class="form-group">
-            <label for="confirmPinSetting">Confirmer le nouveau PIN</label>
-            <input id="confirmPinSetting" type="password" maxlength="4" inputmode="numeric" />
-          </div>
-          <button type="submit" class="btn-primary">Enregistrer</button>
-          <p class="form-feedback" id="pinFeedback"></p>
-        </form>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════
-       SCRIPTS (ordre de chargement important)
-  ═══════════════════════════════════ -->
-  <script src="js/firebase.config.js"></script>
-  <script src="js/player.js"></script>
-  <script src="js/channels.js"></script>
+  <!-- ══════════════════════════════════════
+       SCRIPTS (ordre : matches → streams → player)
+  ══════════════════════════════════════ -->
   <script src="js/matches.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/streams.js"></script>
+  <script src="js/player.js"></script>
 </body>
 </html>

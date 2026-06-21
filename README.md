@@ -1,85 +1,39 @@
 # FootLive ⚽
-Site de streaming football – Coupe du Monde 2026
+Streaming football Coupe du Monde 2026 — style Koora Live
 
-## Setup
-
-### 1. Cloner le repo
-```bash
-git clone https://github.com/TON-USER/footlive.git
-cd footlive
-```
-
-### 2. Configurer Firebase
-```bash
-cp config/firebase.example.json js/firebase.config.js
-```
-
-Éditez `js/firebase.config.js` :
-```js
-const FIREBASE_CONFIG = {
-  apiKey:            "...",
-  authDomain:        "...",
-  databaseURL:       "https://MON-PROJET-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId:         "...",
-  storageBucket:     "...",
-  messagingSenderId: "...",
-  appId:             "..."
-};
-const ADMIN_PIN = "8033";
-```
-
-> ⚠️ `js/firebase.config.js` est dans `.gitignore` – ne jamais commiter.
-
-### 3. Lancer le site
-Ouvrez `index.html` directement dans un navigateur, ou avec **Live Server** (VS Code).
-Aucun build, aucune dépendance NPM.
-
----
+## Démarrage
+Ouvrez `index.html` dans un navigateur ou avec **Live Server** (VS Code).
+Aucun build, aucune dépendance, aucun serveur requis.
 
 ## UX Flow
-1. **Page d'accueil** → matchs du jour Coupe du Monde (ESPN API)
-2. **Clic sur "▶ Regarder"** → panel de chaînes disponibles pour ce match
-3. **Clic sur une chaîne** → lecteur plein écran
-4. **← Chaînes** → retour à la liste des chaînes
-5. **✕ Quitter** → retour aux matchs
+1. **Page d'accueil** → matchs du jour (ESPN API Coupe du Monde)
+2. **"▶ Regarder"** sur un match → panel de streams slide depuis la droite
+3. **"▶ Regarder"** sur un stream → lecteur plein écran (iframe)
+4. **"← Streams"** → retour à la liste des streams
+5. **"✕ Fermer"** → retour aux matchs
 
-## Ajouter des chaînes
-1. Cliquez sur **⚙ Admin** → entrez le PIN (défaut : `8033`)
-2. Onglet **➕ Ajouter** → remplissez le formulaire
-
-### Préfixes d'URL stream
-| Préfixe   | Type    | Exemple |
-|-----------|---------|---------|
-| `mora=`   | HLS (.m3u8) | `mora=https://…/stream.m3u8` |
-| `embed=`  | Iframe  | `embed=https://player.twitch.tv/…` |
-
-### Mots-clés matchs
-Le champ **Mots-clés matchs** permet d'associer une chaîne à des matchs spécifiques.
-Exemple : `France, Brésil` → la chaîne n'apparaît que pour France vs Brésil.
-Laissez vide pour afficher la chaîne sur tous les matchs.
-
-## Structure Firebase
+## Ajouter des streams
+Éditez `js/streams.js` et ajoutez vos URLs dans le tableau `STREAMS` :
+```js
+const STREAMS = [
+  { name: "Mon Stream",  url: "https://exemple.com/stream.php" },
+  { name: "Mon Stream 2", url: "https://exemple2.com/embed/1" },
+];
 ```
-livetv/
-  channels/
-    -NxABC123/
-      name:     "beIN Sports 1"
-      logo:     "https://…/logo.png"
-      url:      "mora=https://…/stream.m3u8"
-      category: "sports"
-      matches:  ["France", "Brésil"]
-```
+Les streams apparaissent pour **tous les matchs**.
 
-## Règles de sécurité Firebase recommandées
-```json
-{
-  "rules": {
-    "livetv": {
-      "channels": {
-        ".read": true,
-        ".write": false
-      }
-    }
-  }
-}
+## Données matchs
+- Source : ESPN API publique (aucune clé requise)
+- Fallback : 6 matchs mock si l'API est indisponible
+- Refresh automatique toutes les 60 secondes
+
+## Structure
+```
+footlive/
+├── index.html
+├── css/style.css
+└── js/
+    ├── matches.js   ← ESPN API + mock + rendu cards
+    ├── streams.js   ← liste des streams + panel
+    └── player.js    ← lecteur iframe + câblage
 ```
