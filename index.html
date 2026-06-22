@@ -8,54 +8,87 @@
 </head>
 <body>
 
-  <!-- ══════════════════════════════════════
-       HEADER
-  ══════════════════════════════════════ -->
+  <!-- ══════════════════
+       HEADER STICKY
+  ══════════════════ -->
   <header class="header">
-    <div class="header__brand">
-      <span class="header__icon">⚽</span>
-      <span class="header__name">Kora<span class="accent">Live</span></span>
+    <div class="header-inner">
+      <div class="logo">⚽ KoraLive</div>
+      <nav class="day-nav" id="dayNav">
+        <button class="day-btn" data-day="yesterday">Hier</button>
+        <button class="day-btn active" data-day="today">Aujourd'hui</button>
+        <button class="day-btn" data-day="tomorrow">Demain</button>
+      </nav>
     </div>
-    <div class="header__badge">🌍 Coupe du Monde 2026</div>
-    <button class="btn-refresh-top" id="btnRefresh" title="Actualiser">↻</button>
   </header>
 
-  <!-- ══════════════════════════════════════
-       MATCHS DU JOUR
-  ══════════════════════════════════════ -->
-  <main class="main">
-    <div class="section-header">
-      <h1 class="section-title">Matchs du Jour</h1>
-    </div>
-    <div class="matches-grid" id="matchesGrid">
-      <p class="state-msg">Chargement des matchs…</p>
-    </div>
-  </main>
-
-  <!-- ══════════════════════════════════════
-       OVERLAY (fond sombre)
-  ══════════════════════════════════════ -->
+  <!-- ══════════════════
+       OVERLAY
+  ══════════════════ -->
   <div class="overlay" id="overlay"></div>
 
-  <!-- ══════════════════════════════════════
-       PANEL STREAMS (slide depuis la droite)
-  ══════════════════════════════════════ -->
+  <!-- ══════════════════
+       PANEL STREAMS
+  ══════════════════ -->
   <aside class="stream-panel" id="streamPanel" aria-hidden="true">
-    <div class="panel-header">
-      <h2 class="panel-title" id="streamPanelTitle">📺 Streams disponibles</h2>
-      <button class="btn-icon" id="btnCloseStreams" title="Fermer">✕</button>
+    <div class="sp-header">
+      <h3 class="sp-title" id="spTitle">📺 Streams</h3>
+      <button class="sp-close" id="btnClosePanel" title="Fermer">✕</button>
     </div>
-    <p class="panel-match-name" id="panelMatchName"></p>
-    <ul class="stream-list" id="streamList">
-      <li class="state-msg">Chargement…</li>
-    </ul>
+    <p class="sp-match" id="spMatch"></p>
+    <ul class="sp-list" id="streamList"></ul>
   </aside>
 
-  <!-- ══════════════════════════════════════
-       SCRIPTS (ordre : matches → streams → player)
-  ══════════════════════════════════════ -->
+  <!-- ══════════════════
+       MAIN
+  ══════════════════ -->
+  <main class="main">
+
+    <!-- Matchs -->
+    <section class="section" id="sectionMatches">
+      <h2 class="section-title" id="matchesTitle">Matchs du Jour – Coupe du Monde 2026</h2>
+      <div class="matches-list" id="matchesGrid">
+        <p class="state-msg">Chargement des matchs…</p>
+      </div>
+    </section>
+
+    <!-- Actualités (hardcodées) -->
+    <section class="section" id="sectionNews">
+      <h2 class="section-title">Actualités Football</h2>
+      <ul class="news-list">
+        <li class="news-item">
+          <span class="news-tag">⚽ CM 2026</span>
+          <span class="news-text">La France qualifiée pour les quarts après une victoire 3-1 face au Brésil</span>
+        </li>
+        <li class="news-item">
+          <span class="news-tag">🏆 CM 2026</span>
+          <span class="news-text">Mbappé dépasse Ronaldo : 20 buts en Coupe du Monde à seulement 27 ans</span>
+        </li>
+        <li class="news-item">
+          <span class="news-tag">⚽ CM 2026</span>
+          <span class="news-text">L'Argentine de Messi renverse l'Allemagne en prolongation (3-2)</span>
+        </li>
+        <li class="news-item">
+          <span class="news-tag">🇲🇦 CM 2026</span>
+          <span class="news-text">Le Maroc crée l'exploit en battant l'Espagne aux tirs au but (4-3)</span>
+        </li>
+        <li class="news-item">
+          <span class="news-tag">🇺🇸 CM 2026</span>
+          <span class="news-text">USA–Mexique : le derby continental en huitièmes de finale le 1er juillet</span>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <!-- ══════════════════
+       FOOTER
+  ══════════════════ -->
+  <footer class="footer">
+    <p>KoraLive &copy; 2026</p>
+  </footer>
+
   <script src="js/matches.js"></script>
   <script src="js/streams.js"></script>
-  <script src="js/player.js"></script>
 </body>
 </html>

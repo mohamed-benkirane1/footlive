@@ -1,56 +1,48 @@
 /* ============================================================
-   streams.js – Liste des streams embed (affichés pour tous les matchs)
+   streams.js – Panel streams + câblage principal
 ============================================================ */
 
 const Streams = (() => {
 
-  /* ── Streams embed publics ── */
+  /* ── Tableau des streams embed ── */
+  const STREAMS = [
+    { name: 'beIN Sports 1 HD',  url: 'https://streamtp2.com/bein1.php' },
+    { name: 'beIN Sports 2 HD',  url: 'https://streamtp2.com/bein2.php' },
+    { name: 'beIN Sports 3 HD',  url: 'https://streamtp2.com/bein3.php' },
+    { name: 'SSC 1',             url: 'https://streamtp2.com/ssc1.php' },
+    { name: 'Arryadia HD',       url: 'https://streamtp2.com/arryadia.php' },
+    { name: 'Stream HD 1',       url: 'https://sportsurge.club/embed/1' },
+    { name: 'Stream HD 2',       url: 'https://sportsurge.club/embed/2' },
+  ];
 
+  let currentMatch = null;
 
-const STREAMS = [
-  { name: "beIN Sports 1", url: "https://dlhd.so/embed/stream-1.php" },
-  { name: "beIN Sports 2", url: "https://dlhd.so/embed/stream-2.php" },
-  { name: "beIN Sports 3", url: "https://dlhd.so/embed/stream-3.php" },
-  { name: "beIN Sports 4", url: "https://dlhd.so/embed/stream-4.php" },
-  { name: "beIN Sports Max 1", url: "https://dlhd.so/embed/stream-6.php" },
-  { name: "SSC 1", url: "https://dlhd.so/embed/stream-48.php" },
-  { name: "SSC 2", url: "https://dlhd.so/embed/stream-49.php" },
-  { name: "Arryadia", url: "https://dlhd.so/embed/stream-60.php" },
-  { name: "Canal+ Sport", url: "https://dlhd.so/embed/stream-20.php" },
-  { name: "Sky Sports", url: "https://dlhd.so/embed/stream-11.php" }
-];
-
-  let _currentMatch = null;   /* match actuellement affiché dans le panel */
-
-  /* ── Ouvre le panel pour un match donné ── */
+  /* ── Ouvre le panel pour un match ── */
   function openPanel(match) {
-    _currentMatch = match;
+    currentMatch = match;
 
-    /* Met à jour le nom du match */
-    document.getElementById('panelMatchName').textContent =
+    document.getElementById('spMatch').textContent =
       `${match.homeName} vs ${match.awayName}`;
 
-    /* Rend la liste des streams */
+    /* Construit la liste */
     const list = document.getElementById('streamList');
     list.innerHTML = STREAMS.map((s, i) => `
-      <li class="stream-item" data-idx="${i}">
-        <span class="stream-num">${i + 1}</span>
-        <div class="stream-info">
-          <span class="stream-name">${h(s.name)}</span>
-        </div>
-        <span class="stream-live-dot"></span>
-        <button class="btn-watch-stream">▶ Regarder</button>
+      <li class="sp-item" data-idx="${i}">
+        <span class="sp-num">${i + 1}</span>
+        <span class="sp-name">${esc(s.name)}</span>
+        <span class="sp-dot"></span>
+        <button class="btn-sp-watch">▶ Regarder</button>
       </li>`).join('');
 
-    /* Écoute les clics */
-    list.querySelectorAll('.stream-item').forEach(item => {
-      item.querySelector('.btn-watch-stream').addEventListener('click', () => {
+    /* Clic → nouvel onglet */
+    list.querySelectorAll('.sp-item').forEach(item => {
+      item.querySelector('.btn-sp-watch').addEventListener('click', () => {
         const idx = parseInt(item.dataset.idx, 10);
         window.open(STREAMS[idx].url, '_blank');
       });
     });
 
-    /* Affiche le panel */
+    /* Affiche le panel et l'overlay */
     document.getElementById('streamPanel').classList.add('open');
     document.getElementById('streamPanel').setAttribute('aria-hidden', 'false');
     document.getElementById('overlay').classList.add('active');
@@ -61,11 +53,11 @@ const STREAMS = [
     document.getElementById('streamPanel').classList.remove('open');
     document.getElementById('streamPanel').setAttribute('aria-hidden', 'true');
     document.getElementById('overlay').classList.remove('active');
-    _currentMatch = null;
+    currentMatch = null;
   }
 
   /* ── Échappement HTML ── */
-  function h(s) {
+  function esc(s) {
     return String(s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -73,3 +65,14 @@ const STREAMS = [
 
   return { openPanel, closePanel };
 })();
+
+/* ============================================================
+   CÂBLAGE (streams.js chargé en dernier → Matches déjà défini)
+============================================================ */
+
+/* Lance le chargement des matchs avec le callback "ouvrir le panel" */
+Matches.init((match) => Streams.openPanel(match));
+
+/* Fermeture du panel */
+document.getElementById('btnClosePanel').addEventListener('click', () => Streams.closePanel());
+document.getElementById('overlay').addEventListener('click', () => Streams.closePanel());

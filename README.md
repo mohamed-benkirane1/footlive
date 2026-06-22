@@ -1,39 +1,33 @@
-# FootLive ⚽
-Streaming football Coupe du Monde 2026 — style Koora Live
+# KoraLive ⚽
+Streaming football Coupe du Monde 2026 — style kooray.live
 
 ## Démarrage
 Ouvrez `index.html` dans un navigateur ou avec **Live Server** (VS Code).
 Aucun build, aucune dépendance, aucun serveur requis.
 
 ## UX Flow
-1. **Page d'accueil** → matchs du jour (ESPN API Coupe du Monde)
+1. **Page d'accueil** → matchs du jour (ESPN API fifa.world)
 2. **"▶ Regarder"** sur un match → panel de streams slide depuis la droite
-3. **"▶ Regarder"** sur un stream → lecteur plein écran (iframe)
-4. **"← Streams"** → retour à la liste des streams
-5. **"✕ Fermer"** → retour aux matchs
+3. **"▶ Regarder"** sur un stream → lien s'ouvre dans un nouvel onglet
+
+## Onglets Hier / Aujourd'hui / Demain
+- **Aujourd'hui** : appel ESPN API + 6 matchs mock si API indisponible
+- **Hier / Demain** : "Aucun match disponible" (pas d'appel API)
 
 ## Ajouter des streams
-Éditez `js/streams.js` et ajoutez vos URLs dans le tableau `STREAMS` :
+Éditez le tableau `STREAMS` dans `js/streams.js` :
 ```js
 const STREAMS = [
   { name: "Mon Stream",  url: "https://exemple.com/stream.php" },
-  { name: "Mon Stream 2", url: "https://exemple2.com/embed/1" },
 ];
 ```
-Les streams apparaissent pour **tous les matchs**.
-
-## Données matchs
-- Source : ESPN API publique (aucune clé requise)
-- Fallback : 6 matchs mock si l'API est indisponible
-- Refresh automatique toutes les 60 secondes
 
 ## Structure
 ```
 footlive/
-├── index.html
-├── css/style.css
+├── index.html         ← header + matchs + news + footer
+├── css/style.css      ← thème bordeaux/dark
 └── js/
-    ├── matches.js   ← ESPN API + mock + rendu cards
-    ├── streams.js   ← liste des streams + panel
-    └── player.js    ← lecteur iframe + câblage
+    ├── matches.js     ← ESPN API + mock + cards + onglets
+    └── streams.js     ← liste streams + panel + câblage
 ```
