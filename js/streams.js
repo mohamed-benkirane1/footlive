@@ -1,88 +1,53 @@
 /* ============================================================
-   streams.js – Panel streams + câblage principal
+   streams.js – نظام روابط البث المباشر
+   ⚡ عدّل MATCH_STREAMS قبل 15 دقيقة من كل مباراة
 ============================================================ */
 
 const Streams = (() => {
 
-  /* ── Génère les streams à partir de l'ID ESPN du match ── */
-  function getStreams(espnMatchId) {
-    return [
-      {
-        name: '🔴 AR 1 – Stream Direct',
-        url:  `https://siiiiiiir.tv/?match=${espnMatchId}`,
-      },
-      {
-        name: '🔴 AR 2 – Stream Direct',
-        url:  `https://siiiiiiir.tv/?match=${espnMatchId}`,
-      },
-      {
-        name: '🔴 Stream HD',
-        url:  'https://streamtp2.com/bein1.php',
-      },
-    ];
+  /* ══════════════════════════════════════════════════
+     ⚡ MODIFIER ICI 15 MIN AVANT CHAQUE MATCH
+     Format : "ESPN_ID" : "URL_STREAM_DIRECT"
+
+     للحصول على ESPN_ID : انظر تحت كل بطاقة مباراة
+     مثال : ESPN ID: 401671862
+  ══════════════════════════════════════════════════ */
+  const MATCH_STREAMS = {
+    "4627863": "https://siiiiiiir.tv/hard/2908c7d4425d87350.html?match=4627863",
+    // أضف المزيد هنا قبل كل مباراة :
+    // "ESPN_ID": "https://رابط-البث-المباشر",
+  };
+
+  /* ── معالجة النقر على زر المشاهدة ── */
+  function handleWatch(match) {
+    const url = MATCH_STREAMS[String(match.id)];
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      showModal();
+    }
   }
 
-  let currentMatch = null;
-
-  /* ── Ouvre le panel pour un match ── */
-  function openPanel(match) {
-    currentMatch = match;
-
-    document.getElementById('spMatch').textContent =
-      `${match.homeName} vs ${match.awayName}`;
-
-    /* Génère les streams avec l'ID ESPN du match */
-    const streams = getStreams(match.id);
-
-    /* Construit la liste */
-    const list = document.getElementById('streamList');
-    list.innerHTML = streams.map((s, i) => `
-      <li class="sp-item" data-idx="${i}">
-        <span class="sp-num">${i + 1}</span>
-        <span class="sp-name">${esc(s.name)}</span>
-        <span class="sp-dot"></span>
-        <button class="btn-sp-watch">▶ Regarder</button>
-      </li>`).join('');
-
-    /* Clic → nouvel onglet */
-    list.querySelectorAll('.sp-item').forEach(item => {
-      item.querySelector('.btn-sp-watch').addEventListener('click', () => {
-        const idx = parseInt(item.dataset.idx, 10);
-        window.open(streams[idx].url, '_blank');
-      });
-    });
-
-    /* Affiche le panel et l'overlay */
-    document.getElementById('streamPanel').classList.add('open');
-    document.getElementById('streamPanel').setAttribute('aria-hidden', 'false');
-    document.getElementById('overlay').classList.add('active');
+  /* ── عرض مودال "البث قريباً" ── */
+  function showModal() {
+    document.getElementById('modalOverlay').classList.add('open');
   }
 
-  /* ── Ferme le panel ── */
-  function closePanel() {
-    document.getElementById('streamPanel').classList.remove('open');
-    document.getElementById('streamPanel').setAttribute('aria-hidden', 'true');
-    document.getElementById('overlay').classList.remove('active');
-    currentMatch = null;
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
   }
 
-  /* ── Échappement HTML ── */
-  function esc(s) {
-    return String(s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
+  /* ── أحداث إغلاق المودال ── */
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modalX').addEventListener('click', closeModal);
+  document.getElementById('modalOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
 
-  return { openPanel, closePanel };
+  return { handleWatch };
 })();
 
 /* ============================================================
-   CÂBLAGE (streams.js chargé en dernier → Matches déjà défini)
+   CÂBLAGE – streams.js est chargé en dernier
 ============================================================ */
-
-/* Lance le chargement des matchs avec le callback "ouvrir le panel" */
-Matches.init((match) => Streams.openPanel(match));
-
-/* Fermeture du panel */
-document.getElementById('btnClosePanel').addEventListener('click', () => Streams.closePanel());
-document.getElementById('overlay').addEventListener('click', () => Streams.closePanel());
+Matches.init((match) => Streams.handleWatch(match));

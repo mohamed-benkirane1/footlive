@@ -1,15 +1,23 @@
 /* ============================================================
-   matches.js – Matchs Coupe du Monde FIFA (ESPN API)
+   matches.js – مباريات كأس العالم عبر ESPN API
 ============================================================ */
 
 const Matches = (() => {
 
-  const ESPN = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard';
+  const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard';
 
-  /* ── Matchs mock (fallback si API indisponible) ── */
+  /* عناوين الأقسام حسب اليوم */
+  const TITLES = {
+    '-1': 'مباريات الأمس – كأس العالم 2026',
+    '0':  'مباريات اليوم – كأس العالم 2026',
+    '1':  'مباريات الغد – كأس العالم 2026',
+  };
+
+  /* ── بيانات احتياطية إذا فشلت الـ API ── */
   const MOCK = [
     {
-      id: 'm1', name: 'France vs Brésil',
+      id: '401671862',
+      name: 'France vs Brésil',
       homeName: 'France',    homeShort: 'FRA',
       homeLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/fra.png',
       awayName: 'Brésil',   awayShort: 'BRA',
@@ -17,7 +25,8 @@ const Matches = (() => {
       scoreH: 2, scoreA: 1, state: 'LIVE', clock: '71\'',
     },
     {
-      id: 'm2', name: 'Argentine vs Allemagne',
+      id: '401671863',
+      name: 'Argentine vs Allemagne',
       homeName: 'Argentine', homeShort: 'ARG',
       homeLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/arg.png',
       awayName: 'Allemagne', awayShort: 'GER',
@@ -25,7 +34,8 @@ const Matches = (() => {
       scoreH: 1, scoreA: 1, state: 'LIVE', clock: '44\'',
     },
     {
-      id: 'm3', name: 'Espagne vs Portugal',
+      id: '401671864',
+      name: 'Espagne vs Portugal',
       homeName: 'Espagne',  homeShort: 'ESP',
       homeLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/esp.png',
       awayName: 'Portugal', awayShort: 'POR',
@@ -33,7 +43,8 @@ const Matches = (() => {
       scoreH: 0, scoreA: 0, state: 'NS', clock: '18:00',
     },
     {
-      id: 'm4', name: 'Maroc vs Sénégal',
+      id: '401671865',
+      name: 'Maroc vs Sénégal',
       homeName: 'Maroc',   homeShort: 'MAR',
       homeLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/mar.png',
       awayName: 'Sénégal', awayShort: 'SEN',
@@ -41,7 +52,8 @@ const Matches = (() => {
       scoreH: 0, scoreA: 0, state: 'NS', clock: '21:00',
     },
     {
-      id: 'm5', name: 'Brésil vs Cameroun',
+      id: '401671866',
+      name: 'Brésil vs Cameroun',
       homeName: 'Brésil',   homeShort: 'BRA',
       homeLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/bra.png',
       awayName: 'Cameroun', awayShort: 'CMR',
@@ -49,7 +61,8 @@ const Matches = (() => {
       scoreH: 3, scoreA: 1, state: 'FT', clock: '',
     },
     {
-      id: 'm6', name: 'USA vs Mexique',
+      id: '401671867',
+      name: 'USA vs Mexique',
       homeName: 'USA',     homeShort: 'USA',
       homeLogo: 'https://a.espncdn.com/i/teamlogos/countries/500/usa.png',
       awayName: 'Mexique', awayShort: 'MEX',
@@ -58,21 +71,34 @@ const Matches = (() => {
     },
   ];
 
-  /* ── Récupère les données ESPN ── */
-  async function fetchData() {
+  /* ── حساب التاريخ بصيغة YYYYMMDD ── */
+  function getDateStr(offset) {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    const y  = d.getFullYear();
+    const mo = String(d.getMonth() + 1).padStart(2, '0');
+    const dy = String(d.getDate()).padStart(2, '0');
+    return `${y}${mo}${dy}`;
+  }
+
+  /* ── استدعاء ESPN API ── */
+  async function fetchData(dayOffset) {
     try {
-      const res = await fetch(ESPN);
+      const dateStr = getDateStr(dayOffset);
+      const url     = `${ESPN_BASE}?dates=${dateStr}`;
+      const res     = await fetch(url);
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      const parsed = parseESPN(data);
-      return parsed.length ? parsed : MOCK;
+      const data    = await res.json();
+      const parsed  = parseESPN(data);
+      /* إذا لم تكن هناك مباريات من الـ API، استخدم Mock فقط ليوم اليوم */
+      return parsed.length ? parsed : (dayOffset === 0 ? MOCK : []);
     } catch (err) {
-      console.warn('[Matches] ESPN indisponible → mock :', err.message);
-      return MOCK;
+      console.warn('[Matches] ESPN غير متاح → mock :', err.message);
+      return dayOffset === 0 ? MOCK : [];
     }
   }
 
-  /* ── Parse la réponse ESPN ── */
+  /* ── تحليل بيانات ESPN ── */
   function parseESPN(data) {
     if (!data.events?.length) return [];
 
@@ -82,25 +108,27 @@ const Matches = (() => {
       const home  = teams.find(t => t.homeAway === 'home') || teams[0];
       const away  = teams.find(t => t.homeAway === 'away') || teams[1];
 
-      const type = comp.status?.type?.name || '';
+      /* تحديد الحالة */
+      const typeName  = comp.status?.type?.name  || '';
+      const typeState = comp.status?.type?.state || '';
       let state = 'NS', clock = '';
 
-      if (type === 'STATUS_IN_PROGRESS' || type === 'IN') {
+      if (typeName === 'STATUS_IN_PROGRESS' || typeState === 'in') {
         state = 'LIVE';
         clock = (comp.status.displayClock || '') + '\'';
-      } else if (type === 'STATUS_FINAL') {
+      } else if (typeName === 'STATUS_FINAL' || typeState === 'post') {
         state = 'FT';
       } else {
-        /* Heure locale du match programmé */
+        /* هـ مباراة مقررة : عرض الوقت المحلي */
         const d = new Date(event.date);
-        clock = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        clock = d.toLocaleTimeString('ar-MA', { hour: '2-digit', minute: '2-digit', hour12: false });
       }
 
       const homeName = home.team.displayName;
       const awayName = away.team.displayName;
 
       return {
-        id:        event.id,
+        id:        String(event.id),
         name:      `${homeName} vs ${awayName}`,
         homeName,
         homeShort: home.team.abbreviation || home.team.shortDisplayName || '',
@@ -116,23 +144,23 @@ const Matches = (() => {
     });
   }
 
-  /* ── Construit une card DOM ── */
+  /* ── بناء card المباراة ── */
   function buildCard(match, onWatch) {
     const isLive = match.state === 'LIVE';
     const isFT   = match.state === 'FT';
 
-    /* Badge statut */
+    /* شارة الحالة */
     let badge = '';
-    if (isLive)    badge = `<span class="badge badge--live">🔴 LIVE</span>`;
-    else if (isFT) badge = `<span class="badge badge--ft">FT</span>`;
+    if (isLive)    badge = `<span class="badge badge--live">🔴 مباشر</span>`;
+    else if (isFT) badge = `<span class="badge badge--ft">انتهت</span>`;
     else           badge = `<span class="badge badge--ns">${esc(match.clock)}</span>`;
 
-    /* Score ou heure centrale */
+    /* النتيجة أو الوقت */
     const center = (isLive || isFT)
       ? `<div class="match-score">${match.scoreH}<span class="score-sep"> – </span>${match.scoreA}</div>`
       : `<div class="match-time">${esc(match.clock)}</div>`;
 
-    /* Logos avec fallback initiales */
+    /* شعارات الفرق مع بديل الأحرف */
     const logoH = match.homeLogo
       ? `<img class="team-logo" src="${esc(match.homeLogo)}" alt="${esc(match.homeName)}"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
@@ -163,80 +191,67 @@ const Matches = (() => {
         </div>
       </div>
       <div class="card-footer">
-        <button class="btn-watch">▶ Regarder</button>
-      </div>`;
+        <button class="btn-watch">▶ شاهد المباراة</button>
+      </div>
+      <p class="match-espn-id">ESPN ID: ${esc(match.id)}</p>`;
 
     card.querySelector('.btn-watch').addEventListener('click', () => onWatch(match));
     return card;
   }
 
-  /* ── Rend la liste de matchs ── */
-  async function render(onWatch) {
+  /* ── عرض قائمة المباريات ── */
+  async function render(onWatch, dayOffset) {
     const grid = document.getElementById('matchesGrid');
-    grid.innerHTML = '<p class="state-msg">Chargement des matchs…</p>';
+    grid.innerHTML = '<p class="state-msg">جارٍ التحميل…</p>';
 
-    const matches = await fetchData();
+    const matches = await fetchData(dayOffset);
     grid.innerHTML = '';
 
     if (!matches.length) {
-      grid.innerHTML = '<p class="state-msg">Aucun match disponible pour le moment</p>';
+      grid.innerHTML = '<p class="state-msg">لا توجد مباريات متاحة</p>';
       return;
     }
 
-    /* Tri : LIVE → NS (par heure) → FT */
+    /* ترتيب : مباشر → مقرر (بالوقت) → انتهت */
     const order = { LIVE: 0, NS: 1, FT: 2 };
     matches
       .sort((a, b) => {
-        const diff = (order[a.state] ?? 1) - (order[b.state] ?? 1);
-        if (diff !== 0) return diff;
-        /* NS : trier par heure de début */
-        if (a.state === 'NS' && b.state === 'NS') {
-          return a.clock.localeCompare(b.clock);
-        }
+        const d = (order[a.state] ?? 1) - (order[b.state] ?? 1);
+        if (d !== 0) return d;
+        if (a.state === 'NS') return a.clock.localeCompare(b.clock);
         return 0;
       })
       .forEach(m => grid.appendChild(buildCard(m, onWatch)));
   }
 
-  /* ── Configure les onglets Hier / Aujourd'hui / Demain ── */
-  function setupDayNav(onWatch) {
-    const titleEl = document.getElementById('matchesTitle');
+  /* ── تهيئة الأزرار وبدء التحميل ── */
+  function init(onWatch) {
+    let currentOffset = 0;
 
+    /* أول تحميل */
+    render(onWatch, 0);
+
+    /* تحديث تلقائي كل 30 ثانية (فقط ليوم اليوم) */
+    setInterval(() => {
+      if (currentOffset === 0) render(onWatch, 0);
+    }, 30_000);
+
+    /* أزرار الأيام */
     document.querySelectorAll('.day-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        const day = btn.dataset.day;
+        currentOffset = parseInt(btn.dataset.offset, 10);
+        document.getElementById('matchesTitle').textContent =
+          TITLES[String(currentOffset)] || 'مباريات كأس العالم 2026';
 
-        if (day === 'today') {
-          titleEl.textContent = 'Matchs du Jour – Coupe du Monde 2026';
-          render(onWatch);
-        } else if (day === 'yesterday') {
-          titleEl.textContent = 'Matchs d\'Hier – Coupe du Monde 2026';
-          document.getElementById('matchesGrid').innerHTML =
-            '<p class="state-msg">Aucun match disponible</p>';
-        } else {
-          titleEl.textContent = 'Matchs de Demain – Coupe du Monde 2026';
-          document.getElementById('matchesGrid').innerHTML =
-            '<p class="state-msg">Aucun match disponible</p>';
-        }
+        render(onWatch, currentOffset);
       });
     });
   }
 
-  /* ── Init : 1er rendu + refresh 30 s + onglets ── */
-  function init(onWatch) {
-    render(onWatch);
-    setInterval(() => {
-      /* Refresh uniquement si l'onglet "Aujourd'hui" est actif */
-      const active = document.querySelector('.day-btn.active');
-      if (active?.dataset.day === 'today') render(onWatch);
-    }, 30_000);
-    setupDayNav(onWatch);
-  }
-
-  /* ── Échappement HTML ── */
+  /* ── ترميز HTML ── */
   function esc(s) {
     return String(s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')

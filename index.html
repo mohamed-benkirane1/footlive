@@ -1,91 +1,61 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KoraLive – Streaming Football</title>
+  <title>كورة لايف | بث مباشر مباريات اليوم كأس العالم 2026</title>
+  <meta name="description" content="كورة لايف بث مباشر مباريات اليوم كأس العالم 2026 مجاناً بجودة HD" />
+  <meta name="keywords" content="كورة لايف, kora live, koora live, بث مباشر, مباريات اليوم, كأس العالم 2026" />
+  <meta property="og:title" content="كورة لايف | بث مباشر كأس العالم 2026" />
+  <meta property="og:description" content="شاهد مباريات كأس العالم 2026 مباشرة بجودة HD مجاناً" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-  <!-- ══════════════════
-       HEADER STICKY
-  ══════════════════ -->
+  <!-- ════════════════════════
+       HEADER
+  ════════════════════════ -->
   <header class="header">
     <div class="header-inner">
-      <div class="logo">⚽ KoraLive</div>
+      <div class="logo">⚽ كورة لايف</div>
       <nav class="day-nav" id="dayNav">
-        <button class="day-btn" data-day="yesterday">Hier</button>
-        <button class="day-btn active" data-day="today">Aujourd'hui</button>
-        <button class="day-btn" data-day="tomorrow">Demain</button>
+        <button class="day-btn" data-offset="-1">مباريات الأمس</button>
+        <button class="day-btn active" data-offset="0">مباريات اليوم</button>
+        <button class="day-btn" data-offset="1">مباريات الغد</button>
       </nav>
     </div>
   </header>
 
-  <!-- ══════════════════
-       OVERLAY
-  ══════════════════ -->
-  <div class="overlay" id="overlay"></div>
-
-  <!-- ══════════════════
-       PANEL STREAMS
-  ══════════════════ -->
-  <aside class="stream-panel" id="streamPanel" aria-hidden="true">
-    <div class="sp-header">
-      <h3 class="sp-title" id="spTitle">📺 Streams</h3>
-      <button class="sp-close" id="btnClosePanel" title="Fermer">✕</button>
-    </div>
-    <p class="sp-match" id="spMatch"></p>
-    <ul class="sp-list" id="streamList"></ul>
-  </aside>
-
-  <!-- ══════════════════
+  <!-- ════════════════════════
        MAIN
-  ══════════════════ -->
+  ════════════════════════ -->
   <main class="main">
-
-    <!-- Matchs -->
-    <section class="section" id="sectionMatches">
-      <h2 class="section-title" id="matchesTitle">Matchs du Jour – Coupe du Monde 2026</h2>
+    <section class="section">
+      <h2 class="section-title" id="matchesTitle">مباريات اليوم – كأس العالم 2026</h2>
       <div class="matches-list" id="matchesGrid">
-        <p class="state-msg">Chargement des matchs…</p>
+        <p class="state-msg">جارٍ التحميل…</p>
       </div>
     </section>
-
-    <!-- Actualités (hardcodées) -->
-    <section class="section" id="sectionNews">
-      <h2 class="section-title">Actualités Football</h2>
-      <ul class="news-list">
-        <li class="news-item">
-          <span class="news-tag">⚽ CM 2026</span>
-          <span class="news-text">La France qualifiée pour les quarts après une victoire 3-1 face au Brésil</span>
-        </li>
-        <li class="news-item">
-          <span class="news-tag">🏆 CM 2026</span>
-          <span class="news-text">Mbappé dépasse Ronaldo : 20 buts en Coupe du Monde à seulement 27 ans</span>
-        </li>
-        <li class="news-item">
-          <span class="news-tag">⚽ CM 2026</span>
-          <span class="news-text">L'Argentine de Messi renverse l'Allemagne en prolongation (3-2)</span>
-        </li>
-        <li class="news-item">
-          <span class="news-tag">🇲🇦 CM 2026</span>
-          <span class="news-text">Le Maroc crée l'exploit en battant l'Espagne aux tirs au but (4-3)</span>
-        </li>
-        <li class="news-item">
-          <span class="news-tag">🇺🇸 CM 2026</span>
-          <span class="news-text">USA–Mexique : le derby continental en huitièmes de finale le 1er juillet</span>
-        </li>
-      </ul>
-    </section>
-
   </main>
 
-  <!-- ══════════════════
+  <!-- ════════════════════════
+       MODAL "بث قريباً"
+  ════════════════════════ -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+      <button class="modal-x" id="modalX">✕</button>
+      <div class="modal-icon">⏳</div>
+      <h3 class="modal-title">البث سيكون متاح قريباً</h3>
+      <p class="modal-msg">تابعونا قبل 15 دقيقة من انطلاق المباراة</p>
+      <button class="btn-modal-close" id="modalClose">إغلاق</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════
        FOOTER
-  ══════════════════ -->
+  ════════════════════════ -->
   <footer class="footer">
-    <p>KoraLive &copy; 2026</p>
+    <p>كورة لايف &copy; 2026 &nbsp;|&nbsp; جميع الحقوق محفوظة</p>
   </footer>
 
   <script src="js/matches.js"></script>

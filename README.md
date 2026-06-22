@@ -1,33 +1,37 @@
-# KoraLive ⚽
-Streaming football Coupe du Monde 2026 — style kooray.live
+# كورة لايف ⚽
+بث مباشر مباريات كأس العالم 2026
 
-## Démarrage
-Ouvrez `index.html` dans un navigateur ou avec **Live Server** (VS Code).
-Aucun build, aucune dépendance, aucun serveur requis.
+## تشغيل الموقع
+افتح `index.html` مباشرة في المتصفح أو عبر **Live Server** في VS Code.
+لا حاجة لأي build أو npm.
 
-## UX Flow
-1. **Page d'accueil** → matchs du jour (ESPN API fifa.world)
-2. **"▶ Regarder"** sur un match → panel de streams slide depuis la droite
-3. **"▶ Regarder"** sur un stream → lien s'ouvre dans un nouvel onglet
+## كيفية إضافة رابط بث قبل المباراة
 
-## Onglets Hier / Aujourd'hui / Demain
-- **Aujourd'hui** : appel ESPN API + 6 matchs mock si API indisponible
-- **Hier / Demain** : "Aucun match disponible" (pas d'appel API)
-
-## Ajouter des streams
-Éditez le tableau `STREAMS` dans `js/streams.js` :
+1. انظر تحت بطاقة المباراة → `ESPN ID: XXXXXXXXX`
+2. افتح `js/streams.js`
+3. أضف السطر التالي في `MATCH_STREAMS` **قبل 15 دقيقة** من المباراة :
 ```js
-const STREAMS = [
-  { name: "Mon Stream",  url: "https://exemple.com/stream.php" },
-];
+const MATCH_STREAMS = {
+  "401671862": "https://رابط-البث-المباشر",
+  // أضف المزيد هنا
+};
 ```
+4. احفظ الملف — الرابط سيعمل فوراً عند النقر على "▶ شاهد المباراة"
 
-## Structure
+### إذا لم يكن الرابط موجوداً
+سيظهر مودال تلقائياً: "البث سيكون متاح قريباً"
+
+## الملفات
 ```
 footlive/
-├── index.html         ← header + matchs + news + footer
-├── css/style.css      ← thème bordeaux/dark
+├── index.html        ← هيكل الصفحة (عربي RTL)
+├── css/style.css     ← التصميم (أبيض/بوردو)
 └── js/
-    ├── matches.js     ← ESPN API + mock + cards + onglets
-    └── streams.js     ← liste streams + panel + câblage
+    ├── matches.js    ← ESPN API + بطاقات المباريات + أزرار الأيام
+    └── streams.js    ← MATCH_STREAMS + مودال + الربط الرئيسي
 ```
+
+## ESPN API
+- Endpoint : `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard`
+- دعم التواريخ : `?dates=YYYYMMDD`
+- تحديث تلقائي كل 30 ثانية (ليوم اليوم فقط)
