@@ -4,16 +4,23 @@
 
 const Streams = (() => {
 
-  /* ── Tableau des streams embed ── */
-  const STREAMS = [
-    { name: 'beIN Sports 1 HD',  url: 'https://streamtp2.com/bein1.php' },
-    { name: 'beIN Sports 2 HD',  url: 'https://streamtp2.com/bein2.php' },
-    { name: 'beIN Sports 3 HD',  url: 'https://streamtp2.com/bein3.php' },
-    { name: 'SSC 1',             url: 'https://streamtp2.com/ssc1.php' },
-    { name: 'Arryadia HD',       url: 'https://streamtp2.com/arryadia.php' },
-    { name: 'Stream HD 1',       url: 'https://sportsurge.club/embed/1' },
-    { name: 'Stream HD 2',       url: 'https://sportsurge.club/embed/2' },
-  ];
+  /* ── Génère les streams à partir de l'ID ESPN du match ── */
+  function getStreams(espnMatchId) {
+    return [
+      {
+        name: '🔴 AR 1 – Stream Direct',
+        url:  `https://siiiiiiir.tv/?match=${espnMatchId}`,
+      },
+      {
+        name: '🔴 AR 2 – Stream Direct',
+        url:  `https://siiiiiiir.tv/?match=${espnMatchId}`,
+      },
+      {
+        name: '🔴 Stream HD',
+        url:  'https://streamtp2.com/bein1.php',
+      },
+    ];
+  }
 
   let currentMatch = null;
 
@@ -24,9 +31,12 @@ const Streams = (() => {
     document.getElementById('spMatch').textContent =
       `${match.homeName} vs ${match.awayName}`;
 
+    /* Génère les streams avec l'ID ESPN du match */
+    const streams = getStreams(match.id);
+
     /* Construit la liste */
     const list = document.getElementById('streamList');
-    list.innerHTML = STREAMS.map((s, i) => `
+    list.innerHTML = streams.map((s, i) => `
       <li class="sp-item" data-idx="${i}">
         <span class="sp-num">${i + 1}</span>
         <span class="sp-name">${esc(s.name)}</span>
@@ -38,7 +48,7 @@ const Streams = (() => {
     list.querySelectorAll('.sp-item').forEach(item => {
       item.querySelector('.btn-sp-watch').addEventListener('click', () => {
         const idx = parseInt(item.dataset.idx, 10);
-        window.open(STREAMS[idx].url, '_blank');
+        window.open(streams[idx].url, '_blank');
       });
     });
 
