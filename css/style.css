@@ -58,14 +58,42 @@ button { cursor: pointer; font-family: inherit; border: none; }
   /* RTL: premier élément = droite (logo), deuxième = gauche (nav) */
 }
 
+/* ── Groupe logo + sélecteur de langue ── */
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 .logo {
   font-size: 1.25rem;
   font-weight: 800;
   color: #fff;
   letter-spacing: 0.2px;
   white-space: nowrap;
-  flex-shrink: 0;
 }
+
+/* ── Sélecteur de langue ── */
+.lang-selector {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  direction: ltr;
+}
+
+.lang-btn {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 6px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: var(--t);
+  white-space: nowrap;
+}
+.lang-btn:hover  { color: #fff; background: rgba(255,255,255,0.12); }
+.lang-btn.active { color: #fff; background: rgba(255,255,255,0.22); font-weight: 700; }
 
 /* ── Onglets jour ── */
 .day-nav {
@@ -137,16 +165,16 @@ button { cursor: pointer; font-family: inherit; border: none; }
   box-shadow: 0 4px 20px rgba(0,0,0,0.11);
   border-color: #d5d5d5;
 }
-/* Card LIVE : liseré rouge à droite (côté naturel en RTL) */
+/* Card LIVE : liseré rouge au côté de départ (droite RTL, gauche LTR) */
 .match-card--live {
-  border-right: 3px solid var(--live);
+  border-inline-start: 3px solid var(--live);
 }
 
 /* Haut de la card : badge */
 .card-top {
   display: flex;
   align-items: center;
-  justify-content: flex-end; /* badge à droite en RTL */
+  justify-content: flex-start; /* flex-start = droite RTL / gauche LTR */
   margin-bottom: 10px;
   gap: 8px;
 }
@@ -321,7 +349,7 @@ button { cursor: pointer; font-family: inherit; border: none; }
 .modal-x {
   position: absolute;
   top: 12px;
-  left: 12px;
+  inset-inline-end: 12px; /* droite en LTR, gauche en RTL */
   background: #f2f2f2;
   color: #666;
   width: 30px;

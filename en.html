@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kora Live – Free Football Streaming | World Cup 2026</title>
+  <meta name="description" content="Watch World Cup 2026 live for free. Best free football streaming site. No subscription needed." />
+  <meta name="keywords" content="kora live, free football stream, watch world cup 2026, live football free, bein sport free, world cup live stream, free soccer stream, watch football online free, koora live, koralive, yalla shoot, kooray live" />
+  <meta property="og:title" content="Kora Live | Free Football Streaming – World Cup 2026" />
+  <meta property="og:description" content="Watch World Cup 2026 live and free in HD quality" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ════════════════════════
+       HEADER
+  ════════════════════════ -->
+  <header class="header">
+    <div class="header-inner">
+      <!-- LTR : nav on the left, brand on the right -->
+      <nav class="day-nav" id="dayNav">
+        <button class="day-btn" data-offset="-1">Yesterday</button>
+        <button class="day-btn active" data-offset="0">Today</button>
+        <button class="day-btn" data-offset="1">Tomorrow</button>
+      </nav>
+      <div class="header-brand">
+        <div class="logo">⚽ Kora Live</div>
+        <div class="lang-selector">
+          <a href="index.html" class="lang-btn">🇸🇦 AR</a>
+          <a href="fr.html"    class="lang-btn">🇫🇷 FR</a>
+          <a href="en.html"    class="lang-btn active">🇬🇧 EN</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ════════════════════════
+       MAIN
+  ════════════════════════ -->
+  <main class="main">
+    <section class="section">
+      <h2 class="section-title" id="matchesTitle">Today's Matches – World Cup 2026</h2>
+      <div class="matches-list" id="matchesGrid">
+        <p class="state-msg">Loading matches…</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ════════════════════════
+       MODAL "stream coming soon"
+  ════════════════════════ -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+      <button class="modal-x" id="modalX">✕</button>
+      <div class="modal-icon">⏳</div>
+      <h3 class="modal-title">Stream will be available soon</h3>
+      <p class="modal-msg">Come back 15 minutes before kickoff</p>
+      <button class="btn-modal-close" id="modalClose">Close</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════
+       FOOTER
+  ════════════════════════ -->
+  <footer class="footer">
+    <p>Kora Live &copy; 2026 &nbsp;|&nbsp; Free Football Streaming</p>
+  </footer>
+
+  <script>
+    window.LANG = {
+      loading:   'Loading matches…',
+      noMatches: 'No matches available',
+      badgeLive: '🔴 LIVE',
+      badgeFT:   'Full Time',
+      btnWatch:  '▶ Watch Now',
+      titles: {
+        '-1': 'Yesterday – World Cup 2026',
+        '0':  "Today's Matches – World Cup 2026",
+        '1':  'Tomorrow – World Cup 2026',
+      },
+    };
+  </script>
+  <script src="js/matches.js"></script>
+  <script src="js/streams.js"></script>
+</body>
+</html>

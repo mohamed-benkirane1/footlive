@@ -6,12 +6,21 @@ const Matches = (() => {
 
   const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard';
 
-  /* عناوين الأقسام حسب اليوم */
-  const TITLES = {
-    '-1': 'مباريات الأمس – كأس العالم 2026',
-    '0':  'مباريات اليوم – كأس العالم 2026',
-    '1':  'مباريات الغد – كأس العالم 2026',
+  /* ── Chaînes localisées (défaut arabe, surchargeable via window.LANG) ── */
+  const LANG = window.LANG || {
+    loading:   'جارٍ التحميل…',
+    noMatches: 'لا توجد مباريات متاحة',
+    badgeLive: '🔴 مباشر',
+    badgeFT:   'انتهت',
+    btnWatch:  '▶ شاهد المباراة',
+    titles: {
+      '-1': 'مباريات الأمس – كأس العالم 2026',
+      '0':  'مباريات اليوم – كأس العالم 2026',
+      '1':  'مباريات الغد – كأس العالم 2026',
+    },
   };
+
+  const TITLES = LANG.titles;
 
   /* ── بيانات احتياطية إذا فشلت الـ API ── */
   const MOCK = [
@@ -151,8 +160,8 @@ const Matches = (() => {
 
     /* شارة الحالة */
     let badge = '';
-    if (isLive)    badge = `<span class="badge badge--live">🔴 مباشر</span>`;
-    else if (isFT) badge = `<span class="badge badge--ft">انتهت</span>`;
+    if (isLive)    badge = `<span class="badge badge--live">${esc(LANG.badgeLive)}</span>`;
+    else if (isFT) badge = `<span class="badge badge--ft">${esc(LANG.badgeFT)}</span>`;
     else           badge = `<span class="badge badge--ns">${esc(match.clock)}</span>`;
 
     /* النتيجة أو الوقت */
@@ -191,7 +200,7 @@ const Matches = (() => {
         </div>
       </div>
       <div class="card-footer">
-        <button class="btn-watch">▶ شاهد المباراة</button>
+        <button class="btn-watch">${esc(LANG.btnWatch)}</button>
       </div>
       <p class="match-espn-id">ESPN ID: ${esc(match.id)}</p>`;
 
@@ -202,13 +211,13 @@ const Matches = (() => {
   /* ── عرض قائمة المباريات ── */
   async function render(onWatch, dayOffset) {
     const grid = document.getElementById('matchesGrid');
-    grid.innerHTML = '<p class="state-msg">جارٍ التحميل…</p>';
+    grid.innerHTML = `<p class="state-msg">${LANG.loading}</p>`;
 
     const matches = await fetchData(dayOffset);
     grid.innerHTML = '';
 
     if (!matches.length) {
-      grid.innerHTML = '<p class="state-msg">لا توجد مباريات متاحة</p>';
+      grid.innerHTML = `<p class="state-msg">${LANG.noMatches}</p>`;
       return;
     }
 

@@ -20,7 +20,15 @@
   ════════════════════════ -->
   <header class="header">
     <div class="header-inner">
-      <div class="logo">⚽ كورة لايف</div>
+      <!-- RTL : premier élément = côté droit -->
+      <div class="header-brand">
+        <div class="logo">⚽ كورة لايف</div>
+        <div class="lang-selector">
+          <a href="index.html" class="lang-btn active">🇸🇦 AR</a>
+          <a href="fr.html"    class="lang-btn">🇫🇷 FR</a>
+          <a href="en.html"    class="lang-btn">🇬🇧 EN</a>
+        </div>
+      </div>
       <nav class="day-nav" id="dayNav">
         <button class="day-btn" data-offset="-1">مباريات الأمس</button>
         <button class="day-btn active" data-offset="0">مباريات اليوم</button>
@@ -61,6 +69,7 @@
     <p>كورة لايف &copy; 2026 &nbsp;|&nbsp; جميع الحقوق محفوظة</p>
   </footer>
 
+  <!-- Langue : arabe (défaut de matches.js, pas besoin de window.LANG) -->
   <script src="js/matches.js"></script>
   <script src="js/streams.js"></script>
 </body>
