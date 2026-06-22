@@ -1,0 +1,37 @@
+name: Deploy to 8 Netlify Sites
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy all sites in parallel
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        site: [1, 2, 3, 4, 5, 6, 7, 8]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
+
+      - name: Deploy to Netlify Site ${{ matrix.site }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets[format('NETLIFY_SITE_{0}', matrix.site)] }}
+        run: |
+          netlify deploy \
+            --dir=. \
+            --site=$NETLIFY_SITE_ID \
+            --auth=$NETLIFY_AUTH_TOKEN \
+            --prod \
+            --message="Auto-deploy from GitHub Actions (commit ${{ github.sha }})"
+
+      - name: Report success
+        run: echo "✅ Site ${{ matrix.site }} deployed successfully"
